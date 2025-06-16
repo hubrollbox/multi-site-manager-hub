@@ -1,4 +1,3 @@
-
 import {
   Calendar,
   Database,
@@ -49,6 +48,11 @@ const menuItems = [
     title: "Redes Sociais",
     url: "/social",
     icon: Share,
+  },
+  {
+    title: "Base de Dados",
+    url: "/database",
+    icon: Database,
   },
   {
     title: "Tarefas",

@@ -8,9 +8,11 @@ import { SiteProvider } from "@/contexts/SiteContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
 import Users from "./pages/Users";
 import Emails from "./pages/Emails";
 import Social from "./pages/Social";
+import Database from "./pages/Database";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
 import Deploy from "./pages/Deploy";
@@ -30,9 +32,11 @@ const App = () => (
               <AppLayout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/projects" element={<Projects />} />
                   <Route path="/users" element={<Users />} />
                   <Route path="/emails" element={<Emails />} />
                   <Route path="/social" element={<Social />} />
+                  <Route path="/database" element={<Database />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/deploy" element={<Deploy />} />

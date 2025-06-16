@@ -14,6 +14,13 @@ interface Project {
     twitter?: string;
     linkedin?: string;
   };
+  database: {
+    supabaseUrl?: string;
+    supabaseProject?: string;
+    connected: boolean;
+    tables?: number;
+    lastBackup?: string;
+  };
 }
 
 interface ProjectContextType {
@@ -38,6 +45,13 @@ const defaultProjects: Project[] = [
       instagram: 'empresa_oficial',
       twitter: 'empresa_corp',
     },
+    database: {
+      supabaseUrl: 'https://abc123.supabase.co',
+      supabaseProject: 'site-principal-db',
+      connected: true,
+      tables: 8,
+      lastBackup: '2024-01-20',
+    },
   },
   {
     id: '2',
@@ -50,6 +64,13 @@ const defaultProjects: Project[] = [
       twitter: 'empresa_blog',
       linkedin: 'empresa-blog',
     },
+    database: {
+      supabaseUrl: 'https://def456.supabase.co',
+      supabaseProject: 'blog-db',
+      connected: true,
+      tables: 5,
+      lastBackup: '2024-01-19',
+    },
   },
   {
     id: '3',
@@ -61,6 +82,10 @@ const defaultProjects: Project[] = [
     socialAccounts: {
       facebook: 'loja.empresa',
       instagram: 'loja_empresa',
+    },
+    database: {
+      connected: false,
+      tables: 0,
     },
   },
 ];
