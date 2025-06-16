@@ -2,7 +2,7 @@
 import {
   Calendar,
   Database,
-  GitHub,
+  Github,
   Home,
   Mail,
   Settings,
@@ -56,7 +56,7 @@ const menuItems = [
   {
     title: "Deploy",
     url: "/deploy",
-    icon: GitHub,
+    icon: Github,
   },
 ];
 

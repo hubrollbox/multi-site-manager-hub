@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
-  GitHub, 
+  Github, 
   Globe,
   CheckCircle,
   XCircle,
@@ -166,7 +165,7 @@ const Deploy = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <GitHub className="h-5 w-5" />
+              <Github className="h-5 w-5" />
               Último Commit
             </CardTitle>
           </CardHeader>

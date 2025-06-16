@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Mail, Calendar, GitHub, TrendingUp, Clock } from "lucide-react";
+import { Users, Mail, Calendar, Github, TrendingUp, Clock } from "lucide-react";
 import { useSiteContext } from "@/contexts/SiteContext";
 
 const Dashboard = () => {
@@ -34,7 +34,7 @@ const Dashboard = () => {
       title: "Deploys",
       value: "8",
       change: "0%",
-      icon: GitHub,
+      icon: Github,
       color: "text-orange-600",
     },
   ];
