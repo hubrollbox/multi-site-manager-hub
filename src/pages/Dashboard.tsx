@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -177,7 +176,7 @@ const Dashboard = () => {
               Agendar Post
             </Button>
             <Button variant="outline" className="h-20 flex-col gap-2">
-              <GitHub className="h-6 w-6" />
+              <Github className="h-6 w-6" />
               Novo Deploy
             </Button>
           </div>
