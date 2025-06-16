@@ -28,6 +28,12 @@ const Database = () => {
     );
   }
 
+  // Initialize database object if it doesn't exist
+  const database = currentProject.database || {
+    connected: false,
+    tables: 0
+  };
+
   const mockTables = [
     {
       name: "users",
@@ -59,7 +65,7 @@ const Database = () => {
     // Simular conexão à base de dados
     updateProject(currentProject.id, {
       database: {
-        ...currentProject.database,
+        ...database,
         connected: true,
         supabaseUrl: 'https://new123.supabase.co',
         supabaseProject: `${currentProject.name.toLowerCase().replace(/\s/g, '-')}-db`,
@@ -76,7 +82,7 @@ const Database = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Base de Dados</h1>
           <p className="text-gray-600 mt-1">Base de dados do {currentProject.name}</p>
         </div>
-        {currentProject.database.connected ? (
+        {database.connected ? (
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Nova Tabela
@@ -96,7 +102,7 @@ const Database = () => {
             <CardTitle className="text-sm font-medium text-gray-600">
               Estado da Conexão
             </CardTitle>
-            {currentProject.database.connected ? (
+            {database.connected ? (
               <CheckCircle className="h-5 w-5 text-green-600" />
             ) : (
               <AlertCircle className="h-5 w-5 text-red-600" />
@@ -104,13 +110,13 @@ const Database = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Badge variant={currentProject.database.connected ? 'default' : 'destructive'}>
-                {currentProject.database.connected ? 'Conectado' : 'Desconectado'}
+              <Badge variant={database.connected ? 'default' : 'destructive'}>
+                {database.connected ? 'Conectado' : 'Desconectado'}
               </Badge>
             </div>
-            {currentProject.database.supabaseProject && (
+            {database.supabaseProject && (
               <p className="text-sm text-gray-600 mt-2">
-                Projeto: {currentProject.database.supabaseProject}
+                Projeto: {database.supabaseProject}
               </p>
             )}
           </CardContent>
@@ -124,7 +130,7 @@ const Database = () => {
             <DatabaseIcon className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentProject.database.tables || 0}</div>
+            <div className="text-2xl font-bold">{database.tables || 0}</div>
           </CardContent>
         </Card>
 
@@ -137,8 +143,8 @@ const Database = () => {
           </CardHeader>
           <CardContent>
             <div className="text-sm">
-              {currentProject.database.lastBackup 
-                ? new Date(currentProject.database.lastBackup).toLocaleDateString('pt-PT')
+              {database.lastBackup 
+                ? new Date(database.lastBackup).toLocaleDateString('pt-PT')
                 : 'Nunca'
               }
             </div>
@@ -146,7 +152,7 @@ const Database = () => {
         </Card>
       </div>
 
-      {!currentProject.database.connected ? (
+      {!database.connected ? (
         /* Database Connection Setup */
         <Card>
           <CardHeader>
@@ -216,13 +222,13 @@ const Database = () => {
                   <div>
                     <Label className="text-sm text-gray-600">URL do Projeto</Label>
                     <p className="text-sm font-mono bg-gray-100 p-2 rounded">
-                      {currentProject.database.supabaseUrl}
+                      {database.supabaseUrl}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-600">Nome do Projeto</Label>
                     <p className="text-sm font-mono bg-gray-100 p-2 rounded">
-                      {currentProject.database.supabaseProject}
+                      {database.supabaseProject}
                     </p>
                   </div>
                 </div>
