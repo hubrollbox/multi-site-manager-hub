@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +14,11 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useState } from "react";
 
 const Tasks = () => {
   const { currentProject } = useProjectContext();
+  const [searchTerm, setSearchTerm] = useState("");
 
   if (!currentProject) {
     return (
@@ -56,7 +59,7 @@ const Tasks = () => {
     },
   ];
 
-  const tasks = [
+  const [tasks, setTasks] = useState([
     {
       id: "1",
       title: "Revisar conteúdo do blog",
@@ -67,6 +70,7 @@ const Tasks = () => {
       tags: ["conteúdo", "blog"],
       assignee: "João Silva",
       createdAt: "2024-01-20",
+      completed: false,
     },
     {
       id: "2",
@@ -78,6 +82,7 @@ const Tasks = () => {
       tags: ["email", "automação"],
       assignee: "Maria Santos",
       createdAt: "2024-01-19",
+      completed: false,
     },
     {
       id: "3",
@@ -89,6 +94,7 @@ const Tasks = () => {
       tags: ["redes sociais", "marketing"],
       assignee: "Pedro Costa",
       createdAt: "2024-01-18",
+      completed: false,
     },
     {
       id: "4",
@@ -100,6 +106,7 @@ const Tasks = () => {
       tags: ["backup", "segurança"],
       assignee: "Ana Ferreira",
       createdAt: "2024-01-15",
+      completed: true,
     },
     {
       id: "5",
@@ -111,8 +118,15 @@ const Tasks = () => {
       tags: ["segurança", "servidor"],
       assignee: "João Silva",
       createdAt: "2024-01-17",
+      completed: false,
     },
-  ];
+  ]);
+
+  const filteredTasks = tasks.filter(task =>
+    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -143,6 +157,36 @@ const Tasks = () => {
     }
   };
 
+  const handleCreateTask = () => {
+    alert("Formulário para criar nova tarefa será implementado");
+  };
+
+  const handleEditTask = (task: any) => {
+    alert(`Editar tarefa: ${task.title}`);
+  };
+
+  const handleToggleTask = (taskId: string) => {
+    setTasks(tasks.map(task => {
+      if (task.id === taskId) {
+        const newCompleted = !task.completed;
+        return {
+          ...task,
+          completed: newCompleted,
+          status: newCompleted ? 'completed' : 'pending'
+        };
+      }
+      return task;
+    }));
+  };
+
+  const handleSyncToCalendar = (task: any) => {
+    alert(`Sincronizar tarefa "${task.title}" com o calendário`);
+  };
+
+  const handleShowFilters = () => {
+    alert("Filtros avançados serão implementados");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -150,7 +194,7 @@ const Tasks = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Tarefas</h1>
           <p className="text-gray-600 mt-1">Tarefas do {currentProject.name}</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleCreateTask} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Nova Tarefa
         </Button>
@@ -185,8 +229,10 @@ const Tasks = () => {
               <Input 
                 placeholder="Procurar tarefas..." 
                 className="w-64"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Button variant="outline" size="sm">
+              <Button onClick={handleShowFilters} variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -194,16 +240,24 @@ const Tasks = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {tasks.map((task) => (
+          {filteredTasks.map((task) => (
             <div key={task.id} className="p-4 bg-white border rounded-lg hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4">
-                <Checkbox className="mt-1" />
+                <Checkbox 
+                  checked={task.completed}
+                  onCheckedChange={() => handleToggleTask(task.id)}
+                  className="mt-1" 
+                />
                 
                 <div className="flex-1 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-medium text-gray-900">{task.title}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                      <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                        {task.title}
+                      </h4>
+                      <p className={`text-sm mt-1 ${task.completed ? 'line-through text-gray-400' : 'text-gray-600'}`}>
+                        {task.description}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={getPriorityColor(task.priority)}>
@@ -240,10 +294,10 @@ const Tasks = () => {
                       Criada em {new Date(task.createdAt).toLocaleDateString('pt-PT')}
                     </span>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleEditTask(task)} variant="outline" size="sm">
                         Editar
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleSyncToCalendar(task)} variant="outline" size="sm">
                         <Calendar className="h-4 w-4 mr-1" />
                         Sincronizar
                       </Button>
@@ -253,6 +307,12 @@ const Tasks = () => {
               </div>
             </div>
           ))}
+          
+          {filteredTasks.length === 0 && searchTerm && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhuma tarefa encontrada para "{searchTerm}"
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

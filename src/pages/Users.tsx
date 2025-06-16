@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +13,11 @@ import {
 } from "@/components/ui/table";
 import { Users as UsersIcon, Search, Plus, Filter } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useState } from "react";
 
 const Users = () => {
   const { currentProject } = useProjectContext();
+  const [searchTerm, setSearchTerm] = useState("");
 
   if (!currentProject) {
     return (
@@ -59,6 +62,29 @@ const Users = () => {
     },
   ];
 
+  const filteredUsers = mockUsers.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleAddUser = () => {
+    alert("Formulário para adicionar novo utilizador será implementado");
+  };
+
+  const handleEditUser = (user: any) => {
+    alert(`Editar utilizador: ${user.name}`);
+  };
+
+  const handleRemoveUser = (user: any) => {
+    if (confirm(`Tem certeza que deseja remover o utilizador ${user.name}?`)) {
+      alert(`Utilizador ${user.name} removido com sucesso`);
+    }
+  };
+
+  const handleShowFilters = () => {
+    alert("Filtros avançados serão implementados");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -66,7 +92,7 @@ const Users = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Utilizadores</h1>
           <p className="text-gray-600 mt-1">Gerir utilizadores do {currentProject.name}</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleAddUser} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Adicionar Utilizador
         </Button>
@@ -136,9 +162,11 @@ const Users = () => {
                 <Input 
                   placeholder="Procurar utilizadores..." 
                   className="pl-10 w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline" size="sm">
+              <Button onClick={handleShowFilters} variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -158,7 +186,7 @@ const Users = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockUsers.map((user) => (
+              {filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -171,10 +199,10 @@ const Users = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleEditUser(user)} variant="outline" size="sm">
                         Editar
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-600">
+                      <Button onClick={() => handleRemoveUser(user)} variant="outline" size="sm" className="text-red-600">
                         Remover
                       </Button>
                     </div>
@@ -183,6 +211,12 @@ const Users = () => {
               ))}
             </TableBody>
           </Table>
+          
+          {filteredUsers.length === 0 && searchTerm && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhum utilizador encontrado para "{searchTerm}"
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

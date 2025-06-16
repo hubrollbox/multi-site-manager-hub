@@ -23,9 +23,16 @@ import {
   Trash2
 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useState } from "react";
 
 const Projects = () => {
   const { projects, currentProject, setCurrentProject } = useProjectContext();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const projectStats = [
     {
@@ -76,6 +83,24 @@ const Projects = () => {
     }
   };
 
+  const handleCreateProject = () => {
+    alert("Formulário para criar novo projeto será implementado");
+  };
+
+  const handleEditProject = (project: any) => {
+    alert(`Editar projeto: ${project.name}`);
+  };
+
+  const handleDeleteProject = (project: any) => {
+    if (confirm(`Tem certeza que deseja eliminar o projeto ${project.name}?`)) {
+      alert(`Projeto ${project.name} eliminado com sucesso`);
+    }
+  };
+
+  const handleShowFilters = () => {
+    alert("Filtros avançados serão implementados");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -83,7 +108,7 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Projetos</h1>
           <p className="text-gray-600 mt-1">Gerir todos os seus projetos</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleCreateProject} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Novo Projeto
         </Button>
@@ -120,9 +145,11 @@ const Projects = () => {
                 <Input 
                   placeholder="Procurar projetos..." 
                   className="pl-10 w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline" size="sm">
+              <Button onClick={handleShowFilters} variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -142,7 +169,7 @@ const Projects = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <TableRow 
                   key={project.id}
                   className={currentProject?.id === project.id ? 'bg-blue-50' : ''}
@@ -184,16 +211,16 @@ const Projects = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button 
-                        variant="outline" 
+                        variant={currentProject?.id === project.id ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentProject(project)}
                       >
-                        Selecionar
+                        {currentProject?.id === project.id ? "Selecionado" : "Selecionar"}
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleEditProject(project)} variant="outline" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-600">
+                      <Button onClick={() => handleDeleteProject(project)} variant="outline" size="sm" className="text-red-600">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -202,6 +229,12 @@ const Projects = () => {
               ))}
             </TableBody>
           </Table>
+          
+          {filteredProjects.length === 0 && searchTerm && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhum projeto encontrado para "{searchTerm}"
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

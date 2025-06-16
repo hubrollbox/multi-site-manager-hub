@@ -16,9 +16,12 @@ import {
   ExternalLink
 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useState } from "react";
 
 const Database = () => {
   const { currentProject, updateProject } = useProjectContext();
+  const [supabaseUrl, setSupabaseUrl] = useState("");
+  const [supabaseKey, setSupabaseKey] = useState("");
 
   if (!currentProject) {
     return (
@@ -62,17 +65,56 @@ const Database = () => {
   ];
 
   const handleConnectDatabase = () => {
+    if (!supabaseUrl && !database.connected) {
+      alert("Por favor, insira a URL do Supabase");
+      return;
+    }
+    
     // Simular conexão à base de dados
     updateProject(currentProject.id, {
       database: {
         ...database,
         connected: true,
-        supabaseUrl: 'https://new123.supabase.co',
+        supabaseUrl: supabaseUrl || database.supabaseUrl || 'https://new123.supabase.co',
         supabaseProject: `${currentProject.name.toLowerCase().replace(/\s/g, '-')}-db`,
         tables: 4,
         lastBackup: new Date().toISOString().split('T')[0],
       }
     });
+    
+    alert("Base de dados conectada com sucesso!");
+  };
+
+  const handleCreateNewSupabaseProject = () => {
+    window.open('https://supabase.com/dashboard/new', '_blank');
+  };
+
+  const handleSync = () => {
+    alert("Sincronização com Supabase será implementada");
+  };
+
+  const handleBackup = () => {
+    alert("Backup da base de dados iniciado");
+  };
+
+  const handleOpenSupabase = () => {
+    if (database.supabaseUrl) {
+      window.open(database.supabaseUrl, '_blank');
+    } else {
+      alert("URL do Supabase não configurada");
+    }
+  };
+
+  const handleCreateTable = () => {
+    alert("Criador de tabelas será implementado");
+  };
+
+  const handleViewTableData = (tableName: string) => {
+    alert(`Ver dados da tabela: ${tableName}`);
+  };
+
+  const handleTableSettings = (tableName: string) => {
+    alert(`Configurações da tabela: ${tableName}`);
   };
 
   return (
@@ -83,7 +125,7 @@ const Database = () => {
           <p className="text-gray-600 mt-1">Base de dados do {currentProject.name}</p>
         </div>
         {database.connected ? (
-          <Button className="flex items-center gap-2">
+          <Button onClick={handleCreateTable} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Nova Tabela
           </Button>
@@ -168,6 +210,8 @@ const Database = () => {
                 <Input 
                   id="supabaseUrl"
                   placeholder="https://abc123.supabase.co"
+                  value={supabaseUrl}
+                  onChange={(e) => setSupabaseUrl(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -176,6 +220,8 @@ const Database = () => {
                   id="supabaseKey"
                   type="password"
                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  value={supabaseKey}
+                  onChange={(e) => setSupabaseKey(e.target.value)}
                 />
               </div>
             </div>
@@ -183,7 +229,7 @@ const Database = () => {
               <Button onClick={handleConnectDatabase}>
                 Conectar Base de Dados
               </Button>
-              <Button variant="outline">
+              <Button onClick={handleCreateNewSupabaseProject} variant="outline">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Criar Novo Projeto Supabase
               </Button>
@@ -201,15 +247,15 @@ const Database = () => {
                   Gestão da Base de Dados
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button onClick={handleSync} variant="outline" size="sm">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Sincronizar
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button onClick={handleBackup} variant="outline" size="sm">
                     <Download className="h-4 w-4 mr-2" />
                     Backup
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button onClick={handleOpenSupabase} variant="outline" size="sm">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Abrir Supabase
                   </Button>
@@ -244,7 +290,7 @@ const Database = () => {
                   <DatabaseIcon className="h-5 w-5" />
                   Tabelas da Base de Dados
                 </CardTitle>
-                <Button variant="outline" size="sm">
+                <Button onClick={handleCreateTable} variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Tabela
                 </Button>
@@ -253,7 +299,7 @@ const Database = () => {
             <CardContent>
               <div className="space-y-4">
                 {mockTables.map((table, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div className="flex items-center gap-4">
                       <DatabaseIcon className="h-8 w-8 text-blue-600" />
                       <div>
@@ -266,10 +312,10 @@ const Database = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleViewTableData(table.name)} variant="outline" size="sm">
                         Ver Dados
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button onClick={() => handleTableSettings(table.name)} variant="outline" size="sm">
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>

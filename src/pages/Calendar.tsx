@@ -1,12 +1,10 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarIcon, Clock, Plus, Settings } from "lucide-react";
-import { useSiteContext } from "@/contexts/SiteContext";
 
 const Calendar = () => {
-  const { currentSite } = useSiteContext();
-
   const upcomingEvents = [
     {
       id: "1",
@@ -75,14 +73,34 @@ const Calendar = () => {
     }
   };
 
+  const handleConnectOutlook = () => {
+    alert("Funcionalidade de conexão com Outlook será implementada");
+  };
+
+  const handleCreateEvent = () => {
+    alert("Formulário para criar novo evento será implementado");
+  };
+
+  const handleSyncTasks = () => {
+    alert("Sincronização de tarefas será implementada");
+  };
+
+  const handleScheduleMeeting = () => {
+    alert("Agendamento de reunião será implementado");
+  };
+
+  const handleConfigureIntegrations = () => {
+    alert("Configuração de integrações será implementada");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Integração com Calendário</h1>
-          <p className="text-gray-600 mt-1">Sincronização de tarefas e eventos do {currentSite.name}</p>
+          <p className="text-gray-600 mt-1">Sincronização de tarefas e eventos (Global para todos os projetos)</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleCreateEvent} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Novo Evento
         </Button>
@@ -132,7 +150,7 @@ const Calendar = () => {
                   {integrationStatus.outlook ? 'Ativo' : 'Inativo'}
                 </Badge>
                 {!integrationStatus.outlook && (
-                  <Button variant="outline" size="sm">
+                  <Button onClick={handleConnectOutlook} variant="outline" size="sm">
                     Conectar
                   </Button>
                 )}
@@ -182,10 +200,10 @@ const Calendar = () => {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => alert(`Editar evento: ${event.title}`)}>
                     Editar
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => alert("Abrir no calendário externo")}>
                     Ver no Calendário
                   </Button>
                 </div>
@@ -202,15 +220,15 @@ const Calendar = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleSyncTasks} variant="outline" className="h-20 flex-col gap-2">
               <CalendarIcon className="h-6 w-6" />
               Sincronizar Tarefas
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleScheduleMeeting} variant="outline" className="h-20 flex-col gap-2">
               <Clock className="h-6 w-6" />
               Agendar Reunião
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleConfigureIntegrations} variant="outline" className="h-20 flex-col gap-2">
               <Settings className="h-6 w-6" />
               Configurar Integrações
             </Button>

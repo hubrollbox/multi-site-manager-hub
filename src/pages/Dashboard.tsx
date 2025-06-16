@@ -1,11 +1,14 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Mail, Calendar, Github, TrendingUp, Clock } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { currentProject } = useProjectContext();
+  const navigate = useNavigate();
 
   if (!currentProject) {
     return (
@@ -79,6 +82,30 @@ const Dashboard = () => {
     { title: "Atualizar redes sociais", priority: "low", dueDate: "Esta semana" },
   ];
 
+  const handleViewAllActivities = () => {
+    alert("Página de atividades detalhadas será implementada");
+  };
+
+  const handleViewAllTasks = () => {
+    navigate("/tasks");
+  };
+
+  const handleAddUser = () => {
+    navigate("/users");
+  };
+
+  const handleSendEmail = () => {
+    navigate("/emails");
+  };
+
+  const handleSchedulePost = () => {
+    navigate("/social");
+  };
+
+  const handleNewDeploy = () => {
+    navigate("/deploy");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -128,7 +155,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            <Button variant="outline" className="w-full">
+            <Button onClick={handleViewAllActivities} variant="outline" className="w-full">
               Ver Todas as Atividades
             </Button>
           </CardContent>
@@ -157,7 +184,7 @@ const Dashboard = () => {
                 </Badge>
               </div>
             ))}
-            <Button variant="outline" className="w-full">
+            <Button onClick={handleViewAllTasks} variant="outline" className="w-full">
               Ver Todas as Tarefas
             </Button>
           </CardContent>
@@ -171,19 +198,19 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex-col gap-2">
+            <Button onClick={handleAddUser} className="h-20 flex-col gap-2">
               <Users className="h-6 w-6" />
               Adicionar Utilizador
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleSendEmail} variant="outline" className="h-20 flex-col gap-2">
               <Mail className="h-6 w-6" />
               Enviar Email
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleSchedulePost} variant="outline" className="h-20 flex-col gap-2">
               <Calendar className="h-6 w-6" />
               Agendar Post
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button onClick={handleNewDeploy} variant="outline" className="h-20 flex-col gap-2">
               <Github className="h-6 w-6" />
               Novo Deploy
             </Button>

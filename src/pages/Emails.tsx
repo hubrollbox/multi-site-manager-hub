@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -125,6 +126,23 @@ const Emails = () => {
     },
   ];
 
+  const handleCreateEmail = () => {
+    alert("Editor de emails será implementado");
+  };
+
+  const handleCreateAutomation = () => {
+    alert("Criador de automação de emails será implementado");
+  };
+
+  const handleToggleAutomation = (rule: any) => {
+    const newStatus = rule.status === 'active' ? 'inactive' : 'active';
+    alert(`Automação "${rule.name}" ${newStatus === 'active' ? 'ativada' : 'desativada'}`);
+  };
+
+  const handleViewEmailDetails = (email: any) => {
+    alert(`Detalhes do email: ${email.subject}`);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -132,7 +150,7 @@ const Emails = () => {
           <h1 className="text-3xl font-bold text-gray-900">Automação de Emails</h1>
           <p className="text-gray-600 mt-1">Gerir emails do {currentProject.name}</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button onClick={handleCreateEmail} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Novo Email
         </Button>
@@ -170,7 +188,8 @@ const Emails = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {recentEmails.map((email) => (
-              <div key={email.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+              <div key={email.id} className="p-4 bg-gray-50 rounded-lg space-y-3 cursor-pointer hover:bg-gray-100" 
+                   onClick={() => handleViewEmailDetails(email)}>
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-gray-900">{email.subject}</h4>
                   <Badge variant={
@@ -219,11 +238,13 @@ const Emails = () => {
             {automationRules.map((rule) => (
               <div key={rule.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  {rule.status === 'active' ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-gray-400" />
-                  )}
+                  <button onClick={() => handleToggleAutomation(rule)}>
+                    {rule.status === 'active' ? (
+                      <CheckCircle className="h-5 w-5 text-green-500 cursor-pointer hover:text-green-600" />
+                    ) : (
+                      <XCircle className="h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-500" />
+                    )}
+                  </button>
                   <div>
                     <p className="font-medium text-gray-900">{rule.name}</p>
                     <p className="text-sm text-gray-600">{rule.trigger}</p>
@@ -237,7 +258,7 @@ const Emails = () => {
                 </div>
               </div>
             ))}
-            <Button variant="outline" className="w-full">
+            <Button onClick={handleCreateAutomation} variant="outline" className="w-full">
               <Plus className="h-4 w-4 mr-2" />
               Nova Automação
             </Button>
