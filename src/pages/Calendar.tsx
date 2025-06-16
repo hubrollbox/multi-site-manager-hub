@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +58,7 @@ const Calendar = () => {
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case 'meeting': return 'bg-blue-500';
-      case 'task': return '
-
-bg-green-500';
+      case 'task': return 'bg-green-500';
       case 'event': return 'bg-purple-500';
       case 'maintenance': return 'bg-orange-500';
       default: return 'bg-gray-500';
