@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +10,18 @@ import {
   Plus,
   Edit
 } from "lucide-react";
-import { useSiteContext } from "@/contexts/SiteContext";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 const Social = () => {
-  const { currentSite } = useSiteContext();
+  const { currentProject } = useProjectContext();
+
+  if (!currentProject) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Nenhum projeto selecionado</p>
+      </div>
+    );
+  }
 
   const socialStats = [
     {
@@ -123,7 +130,7 @@ const Social = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Redes Sociais</h1>
-          <p className="text-gray-600 mt-1">Gerir redes sociais do {currentSite.name}</p>
+          <p className="text-gray-600 mt-1">Gerir redes sociais do {currentProject.name}</p>
         </div>
         <Button className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -166,8 +173,8 @@ const Social = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Publicar em:</span>
               <div className="flex gap-2">
-                {['Facebook', 'Instagram', 'Twitter'].map((platform) => (
-                  <Badge key={platform} variant="outline" className="cursor-pointer hover:bg-gray-100">
+                {Object.keys(currentProject.socialAccounts).map((platform) => (
+                  <Badge key={platform} variant="outline" className="cursor-pointer hover:bg-gray-100 capitalize">
                     {platform}
                   </Badge>
                 ))}

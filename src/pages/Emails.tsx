@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +11,18 @@ import {
   TrendingUp,
   Plus
 } from "lucide-react";
-import { useSiteContext } from "@/contexts/SiteContext";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 const Emails = () => {
-  const { currentSite } = useSiteContext();
+  const { currentProject } = useProjectContext();
+
+  if (!currentProject) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Nenhum projeto selecionado</p>
+      </div>
+    );
+  }
 
   const emailStats = [
     {
@@ -123,7 +130,7 @@ const Emails = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Automação de Emails</h1>
-          <p className="text-gray-600 mt-1">Gerir emails do {currentSite.name}</p>
+          <p className="text-gray-600 mt-1">Gerir emails do {currentProject.name}</p>
         </div>
         <Button className="flex items-center gap-2">
           <Plus className="h-4 w-4" />

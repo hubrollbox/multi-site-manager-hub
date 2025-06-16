@@ -2,10 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Mail, Calendar, Github, TrendingUp, Clock } from "lucide-react";
-import { useSiteContext } from "@/contexts/SiteContext";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 const Dashboard = () => {
-  const { currentSite } = useSiteContext();
+  const { currentProject } = useProjectContext();
+
+  if (!currentProject) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Nenhum projeto selecionado</p>
+      </div>
+    );
+  }
 
   const stats = [
     {
@@ -75,7 +83,7 @@ const Dashboard = () => {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Bem-vindo ao painel de gestão do {currentSite.name}</p>
+        <p className="text-gray-600 mt-1">Bem-vindo ao painel de gestão do {currentProject.name}</p>
       </div>
 
       {/* Stats Cards */}

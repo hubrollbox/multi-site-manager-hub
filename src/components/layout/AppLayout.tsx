@@ -1,6 +1,7 @@
 
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
+import { ProjectProvider } from "@/contexts/ProjectContext";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -8,7 +9,7 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
-    <>
+    <ProjectProvider>
       <AppSidebar />
       <main className="flex-1 flex flex-col">
         <Header />
@@ -16,6 +17,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           {children}
         </div>
       </main>
-    </>
+    </ProjectProvider>
   );
 };

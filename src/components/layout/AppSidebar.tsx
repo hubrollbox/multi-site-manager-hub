@@ -8,6 +8,7 @@ import {
   Settings,
   Share,
   Users,
+  FolderOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,12 +22,18 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
+import { ProjectSelector } from "@/components/ProjectSelector";
 
 const menuItems = [
   {
     title: "Dashboard",
     url: "/",
     icon: Home,
+  },
+  {
+    title: "Projetos",
+    url: "/projects",
+    icon: FolderOpen,
   },
   {
     title: "Utilizadores",
@@ -66,15 +73,16 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Settings className="h-5 w-5 text-white" />
           </div>
           <div>
             <h2 className="font-semibold text-lg">Central de Gestão</h2>
-            <p className="text-sm text-muted-foreground">Sites</p>
+            <p className="text-sm text-muted-foreground">Projetos</p>
           </div>
         </div>
+        <ProjectSelector />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

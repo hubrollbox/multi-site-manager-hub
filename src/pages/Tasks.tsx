@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +12,18 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
-import { useSiteContext } from "@/contexts/SiteContext";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 const Tasks = () => {
-  const { currentSite } = useSiteContext();
+  const { currentProject } = useProjectContext();
+
+  if (!currentProject) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">Nenhum projeto selecionado</p>
+      </div>
+    );
+  }
 
   const taskStats = [
     {
@@ -141,7 +148,7 @@ const Tasks = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Tarefas</h1>
-          <p className="text-gray-600 mt-1">Tarefas do {currentSite.name}</p>
+          <p className="text-gray-600 mt-1">Tarefas do {currentProject.name}</p>
         </div>
         <Button className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
