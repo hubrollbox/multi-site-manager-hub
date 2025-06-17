@@ -5,8 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SiteProvider } from "@/contexts/SiteContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppLayout } from "@/components/layout/AppLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Users from "./pages/Users";
@@ -25,28 +28,37 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <SiteProvider>
-        <SidebarProvider>
-          <BrowserRouter>
-            <div className="min-h-screen flex w-full bg-gray-50">
-              <AppLayout>
+      <AuthProvider>
+        <SiteProvider>
+          <SidebarProvider>
+            <BrowserRouter>
+              <div className="min-h-screen flex w-full bg-gray-50">
                 <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/emails" element={<Emails />} />
-                  <Route path="/social" element={<Social />} />
-                  <Route path="/database" element={<Database />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/calendar" element={<Calendar />} />
-                  <Route path="/deploy" element={<Deploy />} />
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/*" element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/projects" element={<Projects />} />
+                          <Route path="/users" element={<Users />} />
+                          <Route path="/emails" element={<Emails />} />
+                          <Route path="/social" element={<Social />} />
+                          <Route path="/database" element={<Database />} />
+                          <Route path="/tasks" element={<Tasks />} />
+                          <Route path="/calendar" element={<Calendar />} />
+                          <Route path="/deploy" element={<Deploy />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </AppLayout>
+                    </ProtectedRoute>
+                  } />
                 </Routes>
-              </AppLayout>
-            </div>
-          </BrowserRouter>
-        </SidebarProvider>
-      </SiteProvider>
+              </div>
+            </BrowserRouter>
+          </SidebarProvider>
+        </SiteProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

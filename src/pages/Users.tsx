@@ -11,13 +11,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Users as UsersIcon, Search, Plus, Filter } from "lucide-react";
+import { Users as UsersIcon, Search, Plus, Filter, Loader2, Edit, Trash2 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import { useUsers, useDeleteUser } from "@/hooks/useUsers";
+import { useToast } from "@/hooks/use-toast";
 
 const Users = () => {
   const { currentProject } = useProjectContext();
+  const { user: currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const { data: users = [], isLoading, error } = useUsers();
+  const deleteUserMutation = useDeleteUser();
+  const { toast } = useToast();
 
   if (!currentProject) {
     return (
@@ -27,63 +35,64 @@ const Users = () => {
     );
   }
 
-  const mockUsers = [
-    {
-      id: "1",
-      name: "João Silva",
-      email: "joao@email.com",
-      registrationDate: "2024-01-15",
-      status: "active",
-      lastLogin: "2024-01-20",
-    },
-    {
-      id: "2", 
-      name: "Maria Santos",
-      email: "maria@email.com",
-      registrationDate: "2024-01-10",
-      status: "active",
-      lastLogin: "2024-01-19",
-    },
-    {
-      id: "3",
-      name: "Pedro Costa",
-      email: "pedro@email.com", 
-      registrationDate: "2024-01-05",
-      status: "inactive",
-      lastLogin: "2024-01-12",
-    },
-    {
-      id: "4",
-      name: "Ana Ferreira",
-      email: "ana@email.com",
-      registrationDate: "2024-01-01",
-      status: "active", 
-      lastLogin: "2024-01-21",
-    },
-  ];
-
-  const filteredUsers = mockUsers.filter(user => 
+  const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const activeUsers = users.filter(user => user.role !== 'inactive').length;
+
   const handleAddUser = () => {
-    alert("Formulário para adicionar novo utilizador será implementado");
+    toast({
+      title: "Funcionalidade em desenvolvimento",
+      description: "O formulário para adicionar utilizadores será implementado em breve.",
+    });
   };
 
   const handleEditUser = (user: any) => {
-    alert(`Editar utilizador: ${user.name}`);
+    toast({
+      title: "Funcionalidade em desenvolvimento",
+      description: `Edição do utilizador ${user.name} será implementada em breve.`,
+    });
   };
 
-  const handleRemoveUser = (user: any) => {
+  const handleRemoveUser = async (user: any) => {
+    if (user.id === currentUser?.id) {
+      toast({
+        title: "Ação não permitida",
+        description: "Não pode remover a sua própria conta.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (confirm(`Tem certeza que deseja remover o utilizador ${user.name}?`)) {
-      alert(`Utilizador ${user.name} removido com sucesso`);
+      await deleteUserMutation.mutateAsync(user.id);
     }
   };
 
   const handleShowFilters = () => {
-    alert("Filtros avançados serão implementados");
+    toast({
+      title: "Funcionalidade em desenvolvimento",
+      description: "Filtros avançados serão implementados em breve.",
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">Erro ao carregar utilizadores</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -108,7 +117,7 @@ const Users = () => {
             <UsersIcon className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockUsers.length}</div>
+            <div className="text-2xl font-bold">{users.length}</div>
           </CardContent>
         </Card>
         
@@ -120,9 +129,7 @@ const Users = () => {
             <UsersIcon className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {mockUsers.filter(u => u.status === 'active').length}
-            </div>
+            <div className="text-2xl font-bold">{activeUsers}</div>
           </CardContent>
         </Card>
 
@@ -134,19 +141,28 @@ const Users = () => {
             <UsersIcon className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">
+              {users.filter(user => {
+                const userDate = new Date(user.created_at);
+                const now = new Date();
+                return userDate.getMonth() === now.getMonth() && 
+                       userDate.getFullYear() === now.getFullYear();
+              }).length}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Taxa de Conversão
+              Taxa de Atividade
             </CardTitle>
             <UsersIcon className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78%</div>
+            <div className="text-2xl font-bold">
+              {users.length > 0 ? Math.round((activeUsers / users.length) * 100) : 0}%
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -179,8 +195,8 @@ const Users = () => {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Cargo</TableHead>
                 <TableHead>Data de Registo</TableHead>
-                <TableHead>Último Login</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -190,20 +206,40 @@ const Users = () => {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{new Date(user.registrationDate).toLocaleDateString('pt-PT')}</TableCell>
-                  <TableCell>{new Date(user.lastLogin).toLocaleDateString('pt-PT')}</TableCell>
                   <TableCell>
-                    <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
-                      {user.status === 'active' ? 'Ativo' : 'Inativo'}
+                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                      {user.role === 'admin' ? 'Administrador' : 'Utilizador'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(user.created_at).toLocaleDateString('pt-PT')}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={user.role !== 'inactive' ? 'default' : 'secondary'}>
+                      {user.role !== 'inactive' ? 'Ativo' : 'Inativo'}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button onClick={() => handleEditUser(user)} variant="outline" size="sm">
-                        Editar
+                      <Button 
+                        onClick={() => handleEditUser(user)} 
+                        variant="outline" 
+                        size="sm"
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
-                      <Button onClick={() => handleRemoveUser(user)} variant="outline" size="sm" className="text-red-600">
-                        Remover
+                      <Button 
+                        onClick={() => handleRemoveUser(user)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700"
+                        disabled={deleteUserMutation.isPending}
+                      >
+                        {deleteUserMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>
@@ -215,6 +251,12 @@ const Users = () => {
           {filteredUsers.length === 0 && searchTerm && (
             <div className="text-center py-8 text-gray-500">
               Nenhum utilizador encontrado para "{searchTerm}"
+            </div>
+          )}
+
+          {filteredUsers.length === 0 && !searchTerm && users.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhum utilizador registado ainda.
             </div>
           )}
         </CardContent>
