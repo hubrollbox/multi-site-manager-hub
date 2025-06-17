@@ -28,40 +28,6 @@ export const useUsers = () => {
   });
 };
 
-export const useCreateUser = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (userData: { name: string; email: string; role?: string }) => {
-      // Note: In a real app, user creation would be handled by Supabase Auth
-      // This is just for demonstration - you'd typically use supabase.auth.admin.createUser
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert([userData])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast({
-        title: "Utilizador criado com sucesso!",
-        description: "O novo utilizador foi adicionado à plataforma.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erro ao criar utilizador",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-};
-
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();

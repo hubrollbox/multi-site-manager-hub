@@ -44,8 +44,8 @@ const Users = () => {
 
   const handleAddUser = () => {
     toast({
-      title: "Funcionalidade em desenvolvimento",
-      description: "O formulário para adicionar utilizadores será implementado em breve.",
+      title: "Criar utilizador via registo",
+      description: "Para adicionar novos utilizadores, eles devem registar-se na página de autenticação.",
     });
   };
 
@@ -103,7 +103,7 @@ const Users = () => {
         </div>
         <Button onClick={handleAddUser} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Adicionar Utilizador
+          Info: Adicionar Utilizador
         </Button>
       </div>
 
