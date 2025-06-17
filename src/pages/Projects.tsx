@@ -1,8 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { 
   Table,
   TableBody,
@@ -11,65 +11,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { 
-  FolderOpen, 
-  Search, 
-  Plus, 
-  Filter, 
-  Github,
-  Share,
-  Calendar,
-  Edit,
-  Trash2
-} from "lucide-react";
-import { useProjectContext } from "@/contexts/ProjectContext";
+import { FolderOpen, Search, Filter, Loader2, Edit, Trash2, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useProjects, useDeleteProject, Project } from "@/hooks/useProjects";
+import { CreateProjectDialog } from "@/components/CreateProjectDialog";
+import { EditProjectDialog } from "@/components/EditProjectDialog";
 
 const Projects = () => {
-  const { projects, currentProject, setCurrentProject } = useProjectContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  
+  const { data: projects = [], isLoading, error } = useProjects();
+  const deleteProjectMutation = useDeleteProject();
 
-  const filteredProjects = projects.filter(project =>
+  const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const projectStats = [
-    {
-      title: "Total de Projetos",
-      value: projects.length.toString(),
-      change: "+2",
-      icon: FolderOpen,
-      color: "text-blue-600",
-    },
-    {
-      title: "Projetos Ativos",
-      value: projects.filter(p => p.status === 'active').length.toString(),
-      change: "+1",
-      icon: FolderOpen,
-      color: "text-green-600",
-    },
-    {
-      title: "Este Mês",
-      value: "3",
-      change: "+1",
-      icon: Calendar,
-      color: "text-purple-600",
-    },
-    {
-      title: "Com Repositório",
-      value: projects.filter(p => p.repository).length.toString(),
-      change: "0",
-      icon: Github,
-      color: "text-orange-600",
-    },
-  ];
+  const activeProjects = projects.filter(project => project.status === 'active').length;
+  const completedProjects = projects.filter(project => project.status === 'completed').length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'default';
-      case 'inactive': return 'secondary';
-      case 'archived': return 'outline';
+      case 'completed': return 'outline';
+      case 'paused': return 'secondary';
+      case 'cancelled': return 'destructive';
       default: return 'secondary';
     }
   };
@@ -77,29 +46,39 @@ const Projects = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active': return 'Ativo';
-      case 'inactive': return 'Inativo';
-      case 'archived': return 'Arquivado';
+      case 'completed': return 'Concluído';
+      case 'paused': return 'Pausado';
+      case 'cancelled': return 'Cancelado';
       default: return status;
     }
   };
 
-  const handleCreateProject = () => {
-    alert("Formulário para criar novo projeto será implementado");
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setEditDialogOpen(true);
   };
 
-  const handleEditProject = (project: any) => {
-    alert(`Editar projeto: ${project.name}`);
-  };
-
-  const handleDeleteProject = (project: any) => {
-    if (confirm(`Tem certeza que deseja eliminar o projeto ${project.name}?`)) {
-      alert(`Projeto ${project.name} eliminado com sucesso`);
+  const handleRemoveProject = async (project: Project) => {
+    if (confirm(`Tem certeza que deseja remover o projeto ${project.name}?`)) {
+      await deleteProjectMutation.mutateAsync(project.id);
     }
   };
 
-  const handleShowFilters = () => {
-    alert("Filtros avançados serão implementados");
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">Erro ao carregar projetos</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -108,30 +87,60 @@ const Projects = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Projetos</h1>
           <p className="text-gray-600 mt-1">Gerir todos os seus projetos</p>
         </div>
-        <Button onClick={handleCreateProject} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Projeto
-        </Button>
+        <CreateProjectDialog />
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {projectStats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                {stat.change.startsWith('+') ? '↗' : '↘'} {stat.change} este mês
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total de Projetos
+            </CardTitle>
+            <FolderOpen className="h-5 w-5 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{projects.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Projetos Ativos
+            </CardTitle>
+            <FolderOpen className="h-5 w-5 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{activeProjects}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Projetos Concluídos
+            </CardTitle>
+            <FolderOpen className="h-5 w-5 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{completedProjects}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Taxa de Conclusão
+            </CardTitle>
+            <FolderOpen className="h-5 w-5 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {projects.length > 0 ? Math.round((completedProjects / projects.length) * 100) : 0}%
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Projects Table */}
@@ -149,7 +158,7 @@ const Projects = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button onClick={handleShowFilters} variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -160,48 +169,20 @@ const Projects = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Projeto</TableHead>
-                <TableHead>Repositório</TableHead>
-                <TableHead>Redes Sociais</TableHead>
-                <TableHead>Criado em</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Descrição</TableHead>
                 <TableHead>Estado</TableHead>
+                <TableHead>Repositório</TableHead>
+                <TableHead>Data de Criação</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredProjects.map((project) => (
-                <TableRow 
-                  key={project.id}
-                  className={currentProject?.id === project.id ? 'bg-blue-50' : ''}
-                >
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-sm text-gray-500">{project.description}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {project.repository ? (
-                      <div className="flex items-center gap-1">
-                        <Github className="h-4 w-4" />
-                        <span className="text-sm truncate max-w-[200px]">
-                          {project.repository.split('/').pop()}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">Não configurado</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Share className="h-4 w-4" />
-                      <span className="text-sm">
-                        {Object.keys(project.socialAccounts).length} contas
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(project.createdAt).toLocaleDateString('pt-PT')}
+                <TableRow key={project.id}>
+                  <TableCell className="font-medium">{project.name}</TableCell>
+                  <TableCell className="max-w-md truncate">
+                    {project.description || '-'}
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusColor(project.status)}>
@@ -209,19 +190,45 @@ const Projects = () => {
                     </Badge>
                   </TableCell>
                   <TableCell>
+                    {project.repository ? (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        asChild
+                        className="h-auto p-0 text-blue-600 hover:text-blue-800"
+                      >
+                        <a href={project.repository} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    ) : (
+                      '-'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(project.created_at).toLocaleDateString('pt-PT')}
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
                       <Button 
-                        variant={currentProject?.id === project.id ? "default" : "outline"}
+                        onClick={() => handleEditProject(project)} 
+                        variant="outline" 
                         size="sm"
-                        onClick={() => setCurrentProject(project)}
                       >
-                        {currentProject?.id === project.id ? "Selecionado" : "Selecionar"}
-                      </Button>
-                      <Button onClick={() => handleEditProject(project)} variant="outline" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button onClick={() => handleDeleteProject(project)} variant="outline" size="sm" className="text-red-600">
-                        <Trash2 className="h-4 w-4" />
+                      <Button 
+                        onClick={() => handleRemoveProject(project)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700"
+                        disabled={deleteProjectMutation.isPending}
+                      >
+                        {deleteProjectMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>
@@ -235,8 +242,20 @@ const Projects = () => {
               Nenhum projeto encontrado para "{searchTerm}"
             </div>
           )}
+
+          {filteredProjects.length === 0 && !searchTerm && projects.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhum projeto criado ainda. Crie o seu primeiro projeto!
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <EditProjectDialog 
+        project={editingProject}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </div>
   );
 };
