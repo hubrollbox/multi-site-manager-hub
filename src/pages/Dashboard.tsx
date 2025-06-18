@@ -6,6 +6,7 @@ import { Users, Mail, Calendar, Github, TrendingUp, Clock, Loader2 } from "lucid
 import { useProjectContext } from "@/contexts/ProjectContext";
 import { useTasks } from "@/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
+import TrendingTopics from "@/components/TrendingTopics";
 
 const Dashboard = () => {
   const { currentProject, isLoading: projectsLoading } = useProjectContext();
@@ -148,7 +149,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activities */}
         <Card>
           <CardHeader>
@@ -216,6 +217,11 @@ const Dashboard = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Trending Topics Widget */}
+        <div className="lg:row-span-2">
+          <TrendingTopics />
+        </div>
       </div>
 
       {/* Quick Actions */}
