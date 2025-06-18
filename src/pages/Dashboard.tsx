@@ -2,84 +2,98 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Mail, Calendar, Github, TrendingUp, Clock } from "lucide-react";
+import { Users, Mail, Calendar, Github, TrendingUp, Clock, Loader2 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useTasks } from "@/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const { currentProject } = useProjectContext();
+  const { currentProject, isLoading: projectsLoading } = useProjectContext();
+  const { data: tasks = [], isLoading: tasksLoading } = useTasks(currentProject?.id);
   const navigate = useNavigate();
 
-  if (!currentProject) {
+  if (projectsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Nenhum projeto selecionado</p>
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
+  if (!currentProject) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Nenhum projeto encontrado</p>
+          <Button onClick={() => navigate('/projects')}>
+            Criar Primeiro Projeto
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const pendingTasks = tasks.filter(task => task.status === 'pending');
+  const completedTasks = tasks.filter(task => task.status === 'completed');
+  const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
+  const overdueTasks = tasks.filter(task => task.status === 'overdue');
+
   const stats = [
     {
-      title: "Novos Utilizadores",
-      value: "247",
+      title: "Tarefas Pendentes",
+      value: pendingTasks.length.toString(),
       change: "+12%",
-      icon: Users,
-      color: "text-blue-600",
+      icon: Clock,
+      color: "text-orange-600",
     },
     {
-      title: "Emails Enviados",
-      value: "1,284",
+      title: "Tarefas Concluídas",
+      value: completedTasks.length.toString(),
       change: "+5%",
-      icon: Mail,
+      icon: Users,
       color: "text-green-600",
     },
     {
-      title: "Posts Agendados",
-      value: "23",
+      title: "Em Progresso",
+      value: inProgressTasks.length.toString(),
       change: "+18%",
       icon: Calendar,
-      color: "text-purple-600",
+      color: "text-blue-600",
     },
     {
-      title: "Deploys",
-      value: "8",
+      title: "Em Atraso",
+      value: overdueTasks.length.toString(),
       change: "0%",
       icon: Github,
-      color: "text-orange-600",
+      color: "text-red-600",
     },
   ];
 
   const recentActivities = [
     {
-      type: "user",
-      message: "Novo utilizador registado: joão@email.com",
+      type: "task",
+      message: `${tasks.length} tarefas no projeto ${currentProject.name}`,
       time: "há 5 min",
       status: "success",
     },
     {
-      type: "email",
-      message: "Email de boas-vindas enviado para 12 utilizadores",
+      type: "project",
+      message: `Projeto ${currentProject.name} atualizado`,
       time: "há 15 min", 
       status: "success",
     },
     {
-      type: "deploy",
-      message: "Deploy concluído com sucesso",
+      type: "task",
+      message: `${completedTasks.length} tarefas concluídas`,
       time: "há 1 hora",
       status: "success",
     },
     {
-      type: "task",
-      message: "Nova tarefa criada: Revisar conteúdo do blog",
+      type: "database",
+      message: `Base de dados conectada: ${currentProject.database?.tables || 0} tabelas`,
       time: "há 2 horas",
       status: "pending",
     },
-  ];
-
-  const pendingTasks = [
-    { title: "Revisar conteúdo do blog", priority: "high", dueDate: "Hoje" },
-    { title: "Configurar automação de email", priority: "medium", dueDate: "Amanhã" },
-    { title: "Atualizar redes sociais", priority: "low", dueDate: "Esta semana" },
   ];
 
   const handleViewAllActivities = () => {
@@ -170,20 +184,33 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {pendingTasks.map((task, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                  <p className="text-xs text-gray-500">{task.dueDate}</p>
-                </div>
-                <Badge variant={
-                  task.priority === 'high' ? 'destructive' : 
-                  task.priority === 'medium' ? 'default' : 'secondary'
-                }>
-                  {task.priority}
-                </Badge>
+            {tasksLoading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
               </div>
-            ))}
+            ) : pendingTasks.length > 0 ? (
+              pendingTasks.slice(0, 3).map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{task.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {task.due_date ? new Date(task.due_date).toLocaleDateString('pt-PT') : 'Sem prazo'}
+                    </p>
+                  </div>
+                  <Badge variant={
+                    task.priority === 'high' ? 'destructive' : 
+                    task.priority === 'medium' ? 'default' : 'secondary'
+                  }>
+                    {task.priority === 'high' ? 'Alta' : 
+                     task.priority === 'medium' ? 'Média' : 'Baixa'}
+                  </Badge>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                Nenhuma tarefa pendente
+              </div>
+            )}
             <Button onClick={handleViewAllTasks} variant="outline" className="w-full">
               Ver Todas as Tarefas
             </Button>
