@@ -5,20 +5,31 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  Database,
   Plus, 
   Calendar,
   Clock,
   Filter,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Edit,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
 import { useState } from "react";
+import { useTasks, useUpdateTask, useDeleteTask } from "@/hooks/useTasks";
+import { CreateTaskDialog } from "@/components/CreateTaskDialog";
+import { EditTaskDialog } from "@/components/EditTaskDialog";
 
 const Tasks = () => {
   const { currentProject } = useProjectContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const { data: tasks = [], isLoading, error } = useTasks(currentProject?.id);
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
 
   if (!currentProject) {
     return (
@@ -28,105 +39,62 @@ const Tasks = () => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">Erro ao carregar tarefas</p>
+      </div>
+    );
+  }
+
+  const filteredTasks = tasks.filter(task =>
+    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const pendingTasks = tasks.filter(task => task.status === 'pending').length;
+  const completedTasks = tasks.filter(task => task.status === 'completed').length;
+  const overdueTasks = tasks.filter(task => task.status === 'overdue').length;
+  const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
+
   const taskStats = [
     {
       title: "Tarefas Pendentes",
-      value: "12",
+      value: pendingTasks.toString(),
       change: "+3",
       icon: Clock,
       color: "text-orange-600",
     },
     {
-      title: "Concluídas Hoje",
-      value: "8",
+      title: "Concluídas",
+      value: completedTasks.toString(),
       change: "+2",
       icon: CheckCircle,
       color: "text-green-600",
     },
     {
       title: "Em Atraso",
-      value: "2",
+      value: overdueTasks.toString(),
       change: "-1",
       icon: AlertCircle,
       color: "text-red-600",
     },
     {
-      title: "Esta Semana",
-      value: "18",
+      title: "Em Progresso",
+      value: inProgressTasks.toString(),
       change: "+5",
       icon: Calendar,
       color: "text-blue-600",
     },
   ];
-
-  const [tasks, setTasks] = useState([
-    {
-      id: "1",
-      title: "Revisar conteúdo do blog",
-      description: "Verificar e corrigir os últimos 3 artigos publicados",
-      priority: "high",
-      status: "pending",
-      dueDate: "2024-01-22",
-      tags: ["conteúdo", "blog"],
-      assignee: "João Silva",
-      createdAt: "2024-01-20",
-      completed: false,
-    },
-    {
-      id: "2",
-      title: "Configurar automação de email", 
-      description: "Implementar sequência de boas-vindas para novos utilizadores",
-      priority: "medium",
-      status: "in-progress",
-      dueDate: "2024-01-24",
-      tags: ["email", "automação"],
-      assignee: "Maria Santos",
-      createdAt: "2024-01-19",
-      completed: false,
-    },
-    {
-      id: "3",
-      title: "Atualizar redes sociais",
-      description: "Criar e agendar posts para a próxima semana",
-      priority: "low",
-      status: "pending",
-      dueDate: "2024-01-26",
-      tags: ["redes sociais", "marketing"],
-      assignee: "Pedro Costa",
-      createdAt: "2024-01-18",
-      completed: false,
-    },
-    {
-      id: "4",
-      title: "Backup da base de dados",
-      description: "Realizar backup completo e testar restauro",
-      priority: "high", 
-      status: "completed",
-      dueDate: "2024-01-21",
-      tags: ["backup", "segurança"],
-      assignee: "Ana Ferreira",
-      createdAt: "2024-01-15",
-      completed: true,
-    },
-    {
-      id: "5",
-      title: "Atualização de segurança",
-      description: "Aplicar patches de segurança no servidor",
-      priority: "high",
-      status: "overdue",
-      dueDate: "2024-01-20",
-      tags: ["segurança", "servidor"],
-      assignee: "João Silva",
-      createdAt: "2024-01-17",
-      completed: false,
-    },
-  ]);
-
-  const filteredTasks = tasks.filter(task =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -157,34 +125,29 @@ const Tasks = () => {
     }
   };
 
-  const handleCreateTask = () => {
-    alert("Formulário para criar nova tarefa será implementado");
+  const getPriorityText = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'Alta';
+      case 'medium': return 'Média';
+      case 'low': return 'Baixa';
+      default: return priority;
+    }
   };
 
   const handleEditTask = (task: any) => {
-    alert(`Editar tarefa: ${task.title}`);
+    setEditingTask(task);
+    setEditDialogOpen(true);
   };
 
-  const handleToggleTask = (taskId: string) => {
-    setTasks(tasks.map(task => {
-      if (task.id === taskId) {
-        const newCompleted = !task.completed;
-        return {
-          ...task,
-          completed: newCompleted,
-          status: newCompleted ? 'completed' : 'pending'
-        };
-      }
-      return task;
-    }));
+  const handleToggleTask = async (taskId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+    await updateTaskMutation.mutateAsync({ id: taskId, status: newStatus });
   };
 
-  const handleSyncToCalendar = (task: any) => {
-    alert(`Sincronizar tarefa "${task.title}" com o calendário`);
-  };
-
-  const handleShowFilters = () => {
-    alert("Filtros avançados serão implementados");
+  const handleRemoveTask = async (task: any) => {
+    if (confirm(`Tem certeza que deseja remover a tarefa "${task.title}"?`)) {
+      await deleteTaskMutation.mutateAsync(task.id);
+    }
   };
 
   return (
@@ -194,10 +157,7 @@ const Tasks = () => {
           <h1 className="text-3xl font-bold text-gray-900">Gestão de Tarefas</h1>
           <p className="text-gray-600 mt-1">Tarefas do {currentProject.name}</p>
         </div>
-        <Button onClick={handleCreateTask} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Tarefa
-        </Button>
+        <CreateTaskDialog projectId={currentProject.id} />
       </div>
 
       {/* Stats Cards */}
@@ -212,9 +172,6 @@ const Tasks = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                {stat.change.startsWith('+') ? '↗' : '↘'} {stat.change} esta semana
-              </div>
             </CardContent>
           </Card>
         ))}
@@ -232,7 +189,7 @@ const Tasks = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Button onClick={handleShowFilters} variant="outline" size="sm">
+              <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -244,24 +201,26 @@ const Tasks = () => {
             <div key={task.id} className="p-4 bg-white border rounded-lg hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4">
                 <Checkbox 
-                  checked={task.completed}
-                  onCheckedChange={() => handleToggleTask(task.id)}
+                  checked={task.status === 'completed'}
+                  onCheckedChange={() => handleToggleTask(task.id, task.status)}
                   className="mt-1" 
                 />
                 
                 <div className="flex-1 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                      <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                         {task.title}
                       </h4>
-                      <p className={`text-sm mt-1 ${task.completed ? 'line-through text-gray-400' : 'text-gray-600'}`}>
-                        {task.description}
-                      </p>
+                      {task.description && (
+                        <p className={`text-sm mt-1 ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-600'}`}>
+                          {task.description}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={getPriorityColor(task.priority)}>
-                        {task.priority}
+                        {getPriorityText(task.priority)}
                       </Badge>
                       <Badge 
                         variant="outline" 
@@ -274,32 +233,32 @@ const Tasks = () => {
 
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <div className="flex items-center gap-4">
-                      <span>👤 {task.assignee}</span>
-                      <span>📅 {new Date(task.dueDate).toLocaleDateString('pt-PT')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {task.tags.map((tag) => (
-                        <span 
-                          key={tag}
-                          className="px-2 py-1 bg-gray-100 rounded text-xs"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {task.due_date && (
+                        <span>📅 {new Date(task.due_date).toLocaleDateString('pt-PT')}</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">
-                      Criada em {new Date(task.createdAt).toLocaleDateString('pt-PT')}
+                      Criada em {new Date(task.created_at).toLocaleDateString('pt-PT')}
                     </span>
                     <div className="flex items-center gap-2">
                       <Button onClick={() => handleEditTask(task)} variant="outline" size="sm">
-                        Editar
+                        <Edit className="h-4 w-4" />
                       </Button>
-                      <Button onClick={() => handleSyncToCalendar(task)} variant="outline" size="sm">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        Sincronizar
+                      <Button 
+                        onClick={() => handleRemoveTask(task)} 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                        disabled={deleteTaskMutation.isPending}
+                      >
+                        {deleteTaskMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -313,8 +272,20 @@ const Tasks = () => {
               Nenhuma tarefa encontrada para "{searchTerm}"
             </div>
           )}
+
+          {filteredTasks.length === 0 && !searchTerm && tasks.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhuma tarefa criada ainda. Crie a sua primeira tarefa!
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <EditTaskDialog 
+        task={editingTask}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </div>
   );
 };
