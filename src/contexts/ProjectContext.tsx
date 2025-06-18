@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useProjects, Project as SupabaseProject } from '@/hooks/useProjects';
+import { useProjects, useUpdateProject, Project as SupabaseProject } from '@/hooks/useProjects';
 
 interface Project extends SupabaseProject {
   socialAccounts?: {
@@ -22,6 +22,7 @@ interface ProjectContextType {
   currentProject: Project | null;
   projects: Project[];
   setCurrentProject: (project: Project) => void;
+  updateProject: (projectId: string, updates: Partial<Project>) => void;
   isLoading: boolean;
   error: any;
 }
@@ -31,6 +32,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const { data: supabaseProjects = [], isLoading, error } = useProjects();
+  const updateProjectMutation = useUpdateProject();
 
   // Transform Supabase projects to include additional mock data for demo purposes
   const projects: Project[] = supabaseProjects.map(project => ({
@@ -47,6 +49,29 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       lastBackup: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     },
   }));
+
+  const updateProject = (projectId: string, updates: Partial<Project>) => {
+    // Update the current project locally for immediate UI feedback
+    if (currentProject && currentProject.id === projectId) {
+      const updatedProject = { ...currentProject, ...updates };
+      setCurrentProject(updatedProject);
+    }
+
+    // For database fields, we only update the local state since these are mock data
+    // In a real implementation, you might want to store this in a separate table
+    if (updates.database) {
+      console.log('Database settings updated:', updates.database);
+    }
+    
+    // For other fields, update via Supabase
+    const supabaseUpdates = { ...updates };
+    delete supabaseUpdates.socialAccounts;
+    delete supabaseUpdates.database;
+    
+    if (Object.keys(supabaseUpdates).length > 0) {
+      updateProjectMutation.mutate({ id: projectId, ...supabaseUpdates });
+    }
+  };
 
   // Set the first project as current when projects are loaded
   useEffect(() => {
@@ -70,6 +95,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       currentProject,
       projects,
       setCurrentProject,
+      updateProject,
       isLoading,
       error,
     }}>
