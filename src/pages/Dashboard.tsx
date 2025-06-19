@@ -1,12 +1,14 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Users, Mail, Calendar, Github, TrendingUp, Clock, Loader2 } from "lucide-react";
+import { Loader2, Users, Calendar, Github, Clock } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
 import { useTasks } from "@/hooks/useTasks";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import TrendingTopics from "@/components/TrendingTopics";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import RecentActivities from "@/components/dashboard/RecentActivities";
+import PendingTasks from "@/components/dashboard/PendingTasks";
+import QuickActions from "@/components/dashboard/QuickActions";
 
 const Dashboard = () => {
   const { currentProject, isLoading: projectsLoading } = useProjectContext();
@@ -128,128 +130,31 @@ const Dashboard = () => {
         <p className="text-gray-600 mt-1">Bem-vindo ao painel de gestão do {currentProject.name}</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                <TrendingUp className="h-3 w-3" />
-                {stat.change} este mês
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DashboardStats stats={stats} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activities */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Atividade Recente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentActivities.map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className={`w-2 h-2 rounded-full ${
-                  activity.status === 'success' ? 'bg-green-500' : 'bg-yellow-500'
-                }`} />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">{activity.message}</p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-            <Button onClick={handleViewAllActivities} variant="outline" className="w-full">
-              Ver Todas as Atividades
-            </Button>
-          </CardContent>
-        </Card>
+        <RecentActivities 
+          activities={recentActivities} 
+          onViewAll={handleViewAllActivities} 
+        />
 
-        {/* Pending Tasks */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Tarefas Pendentes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {tasksLoading ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : pendingTasks.length > 0 ? (
-              pendingTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                    <p className="text-xs text-gray-500">
-                      {task.due_date ? new Date(task.due_date).toLocaleDateString('pt-PT') : 'Sem prazo'}
-                    </p>
-                  </div>
-                  <Badge variant={
-                    task.priority === 'high' ? 'destructive' : 
-                    task.priority === 'medium' ? 'default' : 'secondary'
-                  }>
-                    {task.priority === 'high' ? 'Alta' : 
-                     task.priority === 'medium' ? 'Média' : 'Baixa'}
-                  </Badge>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-4 text-gray-500">
-                Nenhuma tarefa pendente
-              </div>
-            )}
-            <Button onClick={handleViewAllTasks} variant="outline" className="w-full">
-              Ver Todas as Tarefas
-            </Button>
-          </CardContent>
-        </Card>
+        <PendingTasks 
+          tasks={pendingTasks}
+          isLoading={tasksLoading}
+          onViewAll={handleViewAllTasks}
+        />
 
-        {/* Trending Topics Widget */}
         <div className="lg:row-span-2">
           <TrendingTopics />
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button onClick={handleAddUser} className="h-20 flex-col gap-2">
-              <Users className="h-6 w-6" />
-              Adicionar Utilizador
-            </Button>
-            <Button onClick={handleSendEmail} variant="outline" className="h-20 flex-col gap-2">
-              <Mail className="h-6 w-6" />
-              Enviar Email
-            </Button>
-            <Button onClick={handleSchedulePost} variant="outline" className="h-20 flex-col gap-2">
-              <Calendar className="h-6 w-6" />
-              Agendar Post
-            </Button>
-            <Button onClick={handleNewDeploy} variant="outline" className="h-20 flex-col gap-2">
-              <Github className="h-6 w-6" />
-              Novo Deploy
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <QuickActions 
+        onAddUser={handleAddUser}
+        onSendEmail={handleSendEmail}
+        onSchedulePost={handleSchedulePost}
+        onNewDeploy={handleNewDeploy}
+      />
     </div>
   );
 };
