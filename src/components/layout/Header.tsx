@@ -1,6 +1,6 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { SiteSelector } from "@/components/SiteSelector";
+import SiteSelector from "@/components/SiteSelector";
 import { Button } from "@/components/ui/button";
 import { Settings, User } from "lucide-react";
 
