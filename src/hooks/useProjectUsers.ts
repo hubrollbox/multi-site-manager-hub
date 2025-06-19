@@ -1,61 +1,53 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export interface Project {
+export interface ProjectUser {
   id: string;
+  project_id: string;
   name: string;
-  description?: string;
-  repository?: string;
-  project_type: string;
-  online_url?: string;
-  local_url?: string;
-  status: string;
+  email: string;
+  role: string;
   created_at: string;
   updated_at: string;
-  owner_id: string;
 }
 
-export const useProjects = () => {
+export const useProjectUsers = (projectId?: string) => {
   return useQuery({
-    queryKey: ['projects'],
+    queryKey: ['project-users', projectId],
     queryFn: async () => {
+      if (!projectId) return [];
+      
       const { data, error } = await supabase
-        .from('projects')
+        .from('project_users')
         .select('*')
+        .eq('project_id', projectId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Project[];
+      return data as ProjectUser[];
     },
+    enabled: !!projectId,
   });
 };
 
-export const useCreateProject = () => {
+export const useCreateProjectUser = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (projectData: { 
+    mutationFn: async (userData: { 
+      project_id: string;
       name: string; 
-      description?: string; 
-      repository?: string;
-      project_type: string;
-      online_url?: string;
-      local_url?: string;
+      email: string; 
+      role?: string;
     }) => {
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
       const { data, error } = await supabase
-        .from('projects')
+        .from('project_users')
         .insert([{
-          ...projectData,
-          owner_id: user.id
+          ...userData,
+          role: userData.role || 'user'
         }])
         .select()
         .single();
@@ -64,15 +56,15 @@ export const useCreateProject = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project-users'] });
       toast({
-        title: "Projeto criado com sucesso!",
-        description: "O novo projeto foi adicionado.",
+        title: "Utilizador adicionado com sucesso!",
+        description: "O novo utilizador foi adicionado ao projeto.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Erro ao criar projeto",
+        title: "Erro ao adicionar utilizador",
         description: error.message,
         variant: "destructive",
       });
@@ -80,15 +72,15 @@ export const useCreateProject = () => {
   });
 };
 
-export const useUpdateProject = () => {
+export const useUpdateProjectUser = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...projectData }: Partial<Project> & { id: string }) => {
+    mutationFn: async ({ id, ...userData }: Partial<ProjectUser> & { id: string }) => {
       const { data, error } = await supabase
-        .from('projects')
-        .update(projectData)
+        .from('project_users')
+        .update(userData)
         .eq('id', id)
         .select()
         .single();
@@ -97,15 +89,15 @@ export const useUpdateProject = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project-users'] });
       toast({
-        title: "Projeto atualizado com sucesso!",
+        title: "Utilizador atualizado com sucesso!",
         description: "As alterações foram guardadas.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Erro ao atualizar projeto",
+        title: "Erro ao atualizar utilizador",
         description: error.message,
         variant: "destructive",
       });
@@ -113,29 +105,29 @@ export const useUpdateProject = () => {
   });
 };
 
-export const useDeleteProject = () => {
+export const useDeleteProjectUser = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (projectId: string) => {
+    mutationFn: async (userId: string) => {
       const { error } = await supabase
-        .from('projects')
+        .from('project_users')
         .delete()
-        .eq('id', projectId);
+        .eq('id', userId);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project-users'] });
       toast({
-        title: "Projeto removido com sucesso!",
-        description: "O projeto foi removido da plataforma.",
+        title: "Utilizador removido com sucesso!",
+        description: "O utilizador foi removido do projeto.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Erro ao remover projeto",
+        title: "Erro ao remover utilizador",
         description: error.message,
         variant: "destructive",
       });

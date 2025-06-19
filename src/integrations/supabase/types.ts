@@ -39,13 +39,54 @@ export type Database = {
         }
         Relationships: []
       }
+      project_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          project_id: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          project_id: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          project_id?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_users_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
           description: string | null
           id: string
+          local_url: string | null
           name: string
+          online_url: string | null
           owner_id: string
+          project_type: string
           repository: string | null
           status: string
           updated_at: string
@@ -54,8 +95,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          local_url?: string | null
           name: string
+          online_url?: string | null
           owner_id: string
+          project_type?: string
           repository?: string | null
           status?: string
           updated_at?: string
@@ -64,8 +108,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          local_url?: string | null
           name?: string
+          online_url?: string | null
           owner_id?: string
+          project_type?: string
           repository?: string | null
           status?: string
           updated_at?: string
@@ -80,7 +127,7 @@ export type Database = {
           due_date: string | null
           id: string
           priority: string
-          project_id: string | null
+          project_id: string
           status: string
           title: string
           updated_at: string
@@ -92,7 +139,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           priority?: string
-          project_id?: string | null
+          project_id: string
           status?: string
           title: string
           updated_at?: string
@@ -104,7 +151,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           priority?: string
-          project_id?: string | null
+          project_id?: string
           status?: string
           title?: string
           updated_at?: string

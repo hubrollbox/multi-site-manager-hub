@@ -42,7 +42,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       instagram: `${project.name.toLowerCase().replace(/\s+/g, '')}_oficial`,
     },
     database: {
-      supabaseUrl: 'https://wbwsdoyzbgzphrtnlshw.supabase.co',
+      supabaseUrl: project.project_type === 'online' 
+        ? (project.online_url || 'https://exemplo.supabase.co')
+        : 'http://localhost:54321',
       supabaseProject: `${project.name.toLowerCase().replace(/\s+/g, '')}-db`,
       connected: true,
       tables: Math.floor(Math.random() * 10) + 3,

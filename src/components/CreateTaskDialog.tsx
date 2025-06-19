@@ -16,38 +16,52 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useCreateTask } from "@/hooks/useTasks";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 interface CreateTaskDialogProps {
-  projectId: string;
+  projectId?: string;
 }
 
 export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
+  const { currentProject, projects } = useProjectContext();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     priority: 'medium',
-    due_date: ''
+    due_date: '',
+    project_id: projectId || currentProject?.id || ''
   });
 
   const createTaskMutation = useCreateTask();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) return;
+    if (!formData.title.trim() || !formData.project_id) return;
 
     const taskData = {
       title: formData.title.trim(),
       description: formData.description.trim() || undefined,
       priority: formData.priority,
       due_date: formData.due_date || undefined,
-      project_id: projectId,
+      project_id: formData.project_id,
     };
 
     await createTaskMutation.mutateAsync(taskData);
-    setFormData({ title: '', description: '', priority: 'medium', due_date: '' });
+    setFormData({ 
+      title: '', 
+      description: '', 
+      priority: 'medium', 
+      due_date: '', 
+      project_id: projectId || currentProject?.id || ''
+    });
     setOpen(false);
   };
+
+  // Se não há projetos disponíveis, não mostrar o botão
+  if (projects.length === 0) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -61,11 +75,33 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
         <DialogHeader>
           <DialogTitle>Criar Nova Tarefa</DialogTitle>
           <DialogDescription>
-            Adicione uma nova tarefa ao projeto.
+            Adicione uma nova tarefa ao projeto selecionado.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
+            {!projectId && (
+              <div className="grid gap-2">
+                <Label htmlFor="project_id">Projeto *</Label>
+                <Select 
+                  value={formData.project_id} 
+                  onValueChange={(value) => setFormData({ ...formData, project_id: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um projeto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
             <div className="grid gap-2">
               <Label htmlFor="title">Título da Tarefa *</Label>
               <Input
@@ -119,7 +155,7 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
             </Button>
             <Button 
               type="submit" 
-              disabled={createTaskMutation.isPending || !formData.title.trim()}
+              disabled={createTaskMutation.isPending || !formData.title.trim() || !formData.project_id}
             >
               {createTaskMutation.isPending ? "Criando..." : "Criar Tarefa"}
             </Button>

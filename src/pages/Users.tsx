@@ -13,18 +13,17 @@ import {
 } from "@/components/ui/table";
 import { Users as UsersIcon, Search, Plus, Filter, Loader2, Edit, Trash2 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { useUsers, useDeleteUser } from "@/hooks/useUsers";
+import { useProjectUsers, useDeleteProjectUser } from "@/hooks/useProjectUsers";
 import { useToast } from "@/hooks/use-toast";
+import { CreateProjectUserDialog } from "@/components/CreateProjectUserDialog";
 
 const Users = () => {
   const { currentProject } = useProjectContext();
-  const { user: currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   
-  const { data: users = [], isLoading, error } = useUsers();
-  const deleteUserMutation = useDeleteUser();
+  const { data: users = [], isLoading, error } = useProjectUsers(currentProject?.id);
+  const deleteUserMutation = useDeleteProjectUser();
   const { toast } = useToast();
 
   if (!currentProject) {
@@ -42,13 +41,6 @@ const Users = () => {
 
   const activeUsers = users.filter(user => user.role !== 'inactive').length;
 
-  const handleAddUser = () => {
-    toast({
-      title: "Criar utilizador via registo",
-      description: "Para adicionar novos utilizadores, eles devem registar-se na página de autenticação.",
-    });
-  };
-
   const handleEditUser = (user: any) => {
     toast({
       title: "Funcionalidade em desenvolvimento",
@@ -57,15 +49,6 @@ const Users = () => {
   };
 
   const handleRemoveUser = async (user: any) => {
-    if (user.id === currentUser?.id) {
-      toast({
-        title: "Ação não permitida",
-        description: "Não pode remover a sua própria conta.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (confirm(`Tem certeza que deseja remover o utilizador ${user.name}?`)) {
       await deleteUserMutation.mutateAsync(user.id);
     }
@@ -98,13 +81,10 @@ const Users = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestão de Utilizadores</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Utilizadores do Projeto</h1>
           <p className="text-gray-600 mt-1">Gerir utilizadores do {currentProject.name}</p>
         </div>
-        <Button onClick={handleAddUser} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Info: Adicionar Utilizador
-        </Button>
+        <CreateProjectUserDialog projectId={currentProject.id} />
       </div>
 
       {/* Stats Cards */}
@@ -155,14 +135,15 @@ const Users = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Taxa de Atividade
+              Base de Dados
             </CardTitle>
             <UsersIcon className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.length > 0 ? Math.round((activeUsers / users.length) * 100) : 0}%
+              {currentProject.database?.tables || 0}
             </div>
+            <p className="text-xs text-gray-500 mt-1">tabelas conectadas</p>
           </CardContent>
         </Card>
       </div>
@@ -256,7 +237,7 @@ const Users = () => {
 
           {filteredUsers.length === 0 && !searchTerm && users.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              Nenhum utilizador registado ainda.
+              Nenhum utilizador registado ainda no projeto {currentProject.name}.
             </div>
           )}
         </CardContent>
