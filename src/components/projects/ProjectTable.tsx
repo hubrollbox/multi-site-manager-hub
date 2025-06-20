@@ -7,16 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Project } from "@/hooks/useProjects";
 import { ProjectSearch } from "./ProjectSearch";
 import { ProjectTableRow } from "./ProjectTableRow";
+import { ProjectWithTasks } from "@/hooks/useProjectTasks";
 
 interface ProjectTableProps {
-  projects: Project[];
+  projects: ProjectWithTasks[];
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  onEditProject: (project: Project) => void;
-  onRemoveProject: (project: Project) => void;
+  onEditProject: (project: ProjectWithTasks) => void;
+  onRemoveProject: (project: ProjectWithTasks) => void;
   isDeletingProject: boolean;
 }
 
@@ -49,6 +49,7 @@ export const ProjectTable = ({
               <TableHead>Tipo</TableHead>
               <TableHead>URL</TableHead>
               <TableHead>Estado</TableHead>
+              <TableHead>Tarefas Pendentes</TableHead>
               <TableHead>Repositório</TableHead>
               <TableHead>Data de Criação</TableHead>
               <TableHead>Ações</TableHead>

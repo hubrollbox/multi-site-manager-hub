@@ -3,7 +3,22 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, ExternalLink, Globe, MonitorSpeaker, Loader2 } from "lucide-react";
-import { Project } from "@/hooks/useProjects";
+import { ProjectPendingTasks } from "./ProjectPendingTasks";
+
+interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  repository?: string;
+  project_type: string;
+  online_url?: string;
+  local_url?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  owner_id: string;
+  pending_tasks_count?: number;
+}
 
 interface ProjectTableRowProps {
   project: Project;
@@ -78,6 +93,9 @@ export const ProjectTableRow = ({ project, onEdit, onRemove, isDeleting }: Proje
         <Badge variant={getStatusColor(project.status)}>
           {getStatusText(project.status)}
         </Badge>
+      </TableCell>
+      <TableCell>
+        <ProjectPendingTasks pendingTasksCount={project.pending_tasks_count || 0} />
       </TableCell>
       <TableCell>
         {project.repository ? (

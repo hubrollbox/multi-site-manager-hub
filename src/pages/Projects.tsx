@@ -1,7 +1,8 @@
 
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useProjects, useDeleteProject, Project } from "@/hooks/useProjects";
+import { useDeleteProject } from "@/hooks/useProjects";
+import { useProjectsWithPendingTasks, ProjectWithTasks } from "@/hooks/useProjectTasks";
 import { CreateProjectDialog } from "@/components/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { ProjectStats } from "@/components/projects/ProjectStats";
@@ -9,18 +10,18 @@ import { ProjectTable } from "@/components/projects/ProjectTable";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingProject, setEditingProject] = useState<ProjectWithTasks | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   
-  const { data: projects = [], isLoading, error } = useProjects();
+  const { data: projects = [], isLoading, error } = useProjectsWithPendingTasks();
   const deleteProjectMutation = useDeleteProject();
 
-  const handleEditProject = (project: Project) => {
+  const handleEditProject = (project: ProjectWithTasks) => {
     setEditingProject(project);
     setEditDialogOpen(true);
   };
 
-  const handleRemoveProject = async (project: Project) => {
+  const handleRemoveProject = async (project: ProjectWithTasks) => {
     if (confirm(`Tem certeza que deseja remover o projeto ${project.name}?`)) {
       await deleteProjectMutation.mutateAsync(project.id);
     }

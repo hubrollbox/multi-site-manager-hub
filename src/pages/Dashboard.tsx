@@ -8,6 +8,7 @@ import TrendingTopics from "@/components/TrendingTopics";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import PendingTasks from "@/components/dashboard/PendingTasks";
+import { PendingTasksByProject } from "@/components/dashboard/PendingTasksByProject";
 import QuickActions from "@/components/dashboard/QuickActions";
 
 const Dashboard = () => {
@@ -149,12 +150,16 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <QuickActions 
-        onAddUser={handleAddUser}
-        onSendEmail={handleSendEmail}
-        onSchedulePost={handleSchedulePost}
-        onNewDeploy={handleNewDeploy}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PendingTasksByProject />
+        
+        <QuickActions 
+          onAddUser={handleAddUser}
+          onSendEmail={handleSendEmail}
+          onSchedulePost={handleSchedulePost}
+          onNewDeploy={handleNewDeploy}
+        />
+      </div>
     </div>
   );
 };
