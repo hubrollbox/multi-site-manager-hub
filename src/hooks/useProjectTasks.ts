@@ -15,6 +15,13 @@ export interface ProjectWithTasks {
   updated_at: string;
   owner_id: string;
   pending_tasks_count: number;
+  storage_bucket_id?: string;
+  storage_url?: string;
+  database_url?: string;
+  database_project_id?: string;
+  database_connected?: boolean;
+  database_tables_count?: number;
+  last_backup_date?: string;
 }
 
 export const useProjectsWithPendingTasks = () => {

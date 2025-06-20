@@ -69,6 +69,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_project_users_project_id"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "project_users_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -80,8 +87,13 @@ export type Database = {
       projects: {
         Row: {
           created_at: string
+          database_connected: boolean | null
+          database_project_id: string | null
+          database_tables_count: number | null
+          database_url: string | null
           description: string | null
           id: string
+          last_backup_date: string | null
           local_url: string | null
           name: string
           online_url: string | null
@@ -89,12 +101,19 @@ export type Database = {
           project_type: string
           repository: string | null
           status: string
+          storage_bucket_id: string | null
+          storage_url: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          database_connected?: boolean | null
+          database_project_id?: string | null
+          database_tables_count?: number | null
+          database_url?: string | null
           description?: string | null
           id?: string
+          last_backup_date?: string | null
           local_url?: string | null
           name: string
           online_url?: string | null
@@ -102,12 +121,19 @@ export type Database = {
           project_type?: string
           repository?: string | null
           status?: string
+          storage_bucket_id?: string | null
+          storage_url?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          database_connected?: boolean | null
+          database_project_id?: string | null
+          database_tables_count?: number | null
+          database_url?: string | null
           description?: string | null
           id?: string
+          last_backup_date?: string | null
           local_url?: string | null
           name?: string
           online_url?: string | null
@@ -115,6 +141,8 @@ export type Database = {
           project_type?: string
           repository?: string | null
           status?: string
+          storage_bucket_id?: string | null
+          storage_url?: string | null
           updated_at?: string
         }
         Relationships: []

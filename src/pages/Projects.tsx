@@ -6,7 +6,8 @@ import { useProjectsWithPendingTasks, ProjectWithTasks } from "@/hooks/useProjec
 import { CreateProjectDialog } from "@/components/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { ProjectStats } from "@/components/projects/ProjectStats";
-import { ProjectTable } from "@/components/projects/ProjectTable";
+import { ProjectSearch } from "@/components/projects/ProjectSearch";
+import { ProjectGrid } from "@/components/projects/ProjectGrid";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,10 +56,14 @@ const Projects = () => {
 
       <ProjectStats projects={projects} />
 
-      <ProjectTable 
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Projetos</h2>
+        <ProjectSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      </div>
+
+      <ProjectGrid 
         projects={projects}
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
         onEditProject={handleEditProject}
         onRemoveProject={handleRemoveProject}
         isDeletingProject={deleteProjectMutation.isPending}
