@@ -44,9 +44,7 @@ export const ProjectGrid = ({
         <ProjectCard
           key={project.id}
           project={project}
-          onEdit={onEditProject}
-          onRemove={onRemoveProject}
-          isDeleting={isDeletingProject}
+          pendingTasksCount={project.pending_tasks_count}
         />
       ))}
     </div>
