@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +15,26 @@ export interface Project {
   created_at: string;
   updated_at: string;
   owner_id: string;
+  storage_bucket_id?: string;
+  storage_url?: string;
+  database_url?: string;
+  database_project_id?: string;
+  database_connected?: boolean;
+  database_tables_count?: number;
+  last_backup_date?: string;
+  database?: {
+    connected?: boolean;
+    supabaseUrl?: string;
+    supabaseProject?: string;
+    tables?: number;
+    lastBackup?: string;
+  };
+  socialAccounts?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+  };
 }
 
 export const useProjects = () => {

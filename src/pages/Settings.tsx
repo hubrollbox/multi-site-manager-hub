@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, User, Bell, Shield, Database } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, Shield, Database } from "lucide-react";
 
 const Settings = () => {
   return (
