@@ -17,8 +17,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { useCreateProject } from "@/hooks/useProjects";
 
-export const CreateProjectDialog = () => {
-  const [open, setOpen] = useState(false);
+interface CreateProjectDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onProjectCreated?: (project: any) => void;
+}
+
+export const CreateProjectDialog = ({ open, onOpenChange, onProjectCreated }: CreateProjectDialogProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -29,6 +35,9 @@ export const CreateProjectDialog = () => {
   });
 
   const createProjectMutation = useCreateProject();
+
+  const dialogOpen = open !== undefined ? open : isOpen;
+  const setDialogOpen = onOpenChange || setIsOpen;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +52,7 @@ export const CreateProjectDialog = () => {
       local_url: formData.local_url.trim() || undefined,
     };
 
-    await createProjectMutation.mutateAsync(projectData);
+    const project = await createProjectMutation.mutateAsync(projectData);
     setFormData({ 
       name: '', 
       description: '', 
@@ -52,17 +61,23 @@ export const CreateProjectDialog = () => {
       online_url: '',
       local_url: ''
     });
-    setOpen(false);
+    setDialogOpen(false);
+    
+    if (onProjectCreated) {
+      onProjectCreated(project);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Novo Projeto
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {!open && (
+        <DialogTrigger asChild>
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Novo Projeto
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Criar Novo Projeto</DialogTitle>
@@ -146,7 +161,7 @@ export const CreateProjectDialog = () => {
             <Button 
               type="button" 
               variant="outline" 
-              onClick={() => setOpen(false)}
+              onClick={() => setDialogOpen(false)}
             >
               Cancelar
             </Button>

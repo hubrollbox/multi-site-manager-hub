@@ -1,51 +1,46 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarIcon, Clock, Plus, Settings } from "lucide-react";
+import { useProjectContext } from "@/contexts/ProjectContext";
+import { usePendingTasksByProject } from "@/hooks/useProjectTasks";
 
 const Calendar = () => {
-  const upcomingEvents = [
-    {
-      id: "1",
-      title: "Reunião de revisão de conteúdo",
+  const { projects } = useProjectContext();
+  const { data: projectsWithPendingTasks = [] } = usePendingTasksByProject();
+
+  // Generate calendar events from all projects and tasks
+  const calendarEvents = [
+    // Sample events from projects
+    ...projects.slice(0, 3).map((project, index) => ({
+      id: `project-${project.id}`,
+      title: `Reunião de revisão - ${project.name}`,
       type: "meeting",
-      date: "2024-01-22",
-      time: "10:00",
+      date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      time: `${10 + index}:00`,
       duration: "1h",
-      attendees: ["João Silva", "Maria Santos"],
-      linkedTask: "Revisar conteúdo do blog",
-    },
-    {
-      id: "2",
-      title: "Deploy da nova funcionalidade",
-      type: "task",
-      date: "2024-01-22", 
-      time: "14:00",
-      duration: "2h",
-      attendees: ["Pedro Costa"],
-      linkedTask: "Implementar nova funcionalidade",
-    },
-    {
-      id: "3",
-      title: "Webinar sobre marketing digital",
-      type: "event",
-      date: "2024-01-24",
-      time: "16:00",
-      duration: "1h30m",
-      attendees: ["Equipa completa"],
+      attendees: ["Equipa do projeto"],
       linkedTask: null,
-    },
-    {
-      id: "4",
-      title: "Backup semanal da base de dados",
-      type: "maintenance",
-      date: "2024-01-26",
-      time: "02:00",
-      duration: "30m",
-      attendees: ["Sistema automático"],
-      linkedTask: "Backup da base de dados",
-    },
+      projectName: project.name,
+      projectId: project.id,
+    })),
+    
+    // Events from pending tasks
+    ...projectsWithPendingTasks.flatMap(project =>
+      project.pending_tasks.slice(0, 2).map(task => ({
+        id: `task-${task.id}`,
+        title: task.title,
+        type: "task",
+        date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : 
+               new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        time: `${Math.floor(Math.random() * 8) + 9}:00`,
+        duration: task.priority === 'high' ? '2h' : '1h',
+        attendees: ["Responsável pela tarefa"],
+        linkedTask: task.title,
+        projectName: project.name,
+        projectId: project.id,
+      }))
+    )
   ];
 
   const integrationStatus = {
@@ -86,7 +81,7 @@ const Calendar = () => {
   };
 
   const handleScheduleMeeting = () => {
-    alert("Agendamento de reunião será implementado");
+    alert("Agendamento de reunião será implementada");
   };
 
   const handleConfigureIntegrations = () => {
@@ -97,14 +92,42 @@ const Calendar = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Integração com Calendário</h1>
-          <p className="text-gray-600 mt-1">Sincronização de tarefas e eventos (Global para todos os projetos)</p>
+          <h1 className="text-3xl font-bold text-gray-900">Calendário Integrado</h1>
+          <p className="text-gray-600 mt-1">Todos os eventos e tarefas de todos os projetos</p>
         </div>
         <Button onClick={handleCreateEvent} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Novo Evento
         </Button>
       </div>
+
+      {/* Project Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CalendarIcon className="h-5 w-5" />
+            Resumo dos Projetos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{projects.length}</div>
+              <div className="text-sm text-blue-600">Projetos Ativos</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">
+                {projectsWithPendingTasks.reduce((sum, p) => sum + p.pending_tasks.length, 0)}
+              </div>
+              <div className="text-sm text-green-600">Tarefas Pendentes</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{calendarEvents.length}</div>
+              <div className="text-sm text-purple-600">Eventos Total</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Integration Status */}
       <Card>
@@ -160,16 +183,16 @@ const Calendar = () => {
         </CardContent>
       </Card>
 
-      {/* Upcoming Events */}
+      {/* Upcoming Events from all projects */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
-            Próximos Eventos
+            Próximos Eventos - Todos os Projetos
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {upcomingEvents.map((event) => (
+          {calendarEvents.map((event) => (
             <div key={event.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
@@ -181,11 +204,16 @@ const Calendar = () => {
                       <span>🕐 {event.time}</span>
                       <span>⏱️ {event.duration}</span>
                     </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="outline" className="text-xs">
+                        {event.projectName}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {getEventTypeText(event.type)}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-                <Badge variant="outline">
-                  {getEventTypeText(event.type)}
-                </Badge>
               </div>
 
               <div className="flex items-center justify-between">
@@ -210,6 +238,14 @@ const Calendar = () => {
               </div>
             </div>
           ))}
+
+          {calendarEvents.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <CalendarIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Nenhum evento encontrado</p>
+              <p className="text-sm">Crie projetos e tarefas para ver eventos aqui</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

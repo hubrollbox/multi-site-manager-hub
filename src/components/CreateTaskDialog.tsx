@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { useCreateTask } from "@/hooks/useTasks";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { CreateProjectDialog } from "@/components/CreateProjectDialog";
 
 interface CreateTaskDialogProps {
   projectId?: string;
@@ -25,6 +26,7 @@ interface CreateTaskDialogProps {
 export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
   const { currentProject, projects } = useProjectContext();
   const [open, setOpen] = useState(false);
+  const [showCreateProject, setShowCreateProject] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -58,110 +60,135 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
     setOpen(false);
   };
 
-  // Se não há projetos disponíveis, não mostrar o botão
-  if (projects.length === 0) {
-    return null;
-  }
+  const handleCreateNewProject = () => {
+    setShowCreateProject(true);
+    setOpen(false);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Tarefa
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Criar Nova Tarefa</DialogTitle>
-          <DialogDescription>
-            Adicione uma nova tarefa ao projeto selecionado.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            {!projectId && (
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Nova Tarefa
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Criar Nova Tarefa</DialogTitle>
+            <DialogDescription>
+              Adicione uma nova tarefa ao projeto selecionado.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              {!projectId && (
+                <div className="grid gap-2">
+                  <Label htmlFor="project_id">Projeto *</Label>
+                  <Select 
+                    value={formData.project_id} 
+                    onValueChange={(value) => setFormData({ ...formData, project_id: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um projeto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="new-project" className="text-blue-600 font-medium">
+                        + Criar Novo Projeto
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.project_id === 'new-project' && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleCreateNewProject}
+                      className="w-full"
+                    >
+                      Criar Novo Projeto
+                    </Button>
+                  )}
+                </div>
+              )}
+              
               <div className="grid gap-2">
-                <Label htmlFor="project_id">Projeto *</Label>
-                <Select 
-                  value={formData.project_id} 
-                  onValueChange={(value) => setFormData({ ...formData, project_id: value })}
+                <Label htmlFor="title">Título da Tarefa *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Ex: Revisar conteúdo do blog"
                   required
-                >
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Descrição da tarefa..."
+                  rows={3}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="priority">Prioridade</Label>
+                <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um projeto" />
+                    <SelectValue placeholder="Selecione a prioridade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="low">Baixa</SelectItem>
+                    <SelectItem value="medium">Média</SelectItem>
+                    <SelectItem value="high">Alta</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            )}
-            
-            <div className="grid gap-2">
-              <Label htmlFor="title">Título da Tarefa *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Ex: Revisar conteúdo do blog"
-                required
-              />
+              <div className="grid gap-2">
+                <Label htmlFor="due_date">Data de Conclusão</Label>
+                <Input
+                  id="due_date"
+                  type="date"
+                  value={formData.due_date}
+                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Descrição da tarefa..."
-                rows={3}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="priority">Prioridade</Label>
-              <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a prioridade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Baixa</SelectItem>
-                  <SelectItem value="medium">Média</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="due_date">Data de Conclusão</Label>
-              <Input
-                id="due_date"
-                type="date"
-                value={formData.due_date}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={createTaskMutation.isPending || !formData.title.trim() || !formData.project_id}
-            >
-              {createTaskMutation.isPending ? "Criando..." : "Criar Tarefa"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={createTaskMutation.isPending || !formData.title.trim() || (!formData.project_id || formData.project_id === 'new-project')}
+              >
+                {createTaskMutation.isPending ? "Criando..." : "Criar Tarefa"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <CreateProjectDialog 
+        open={showCreateProject} 
+        onOpenChange={setShowCreateProject}
+        onProjectCreated={(project) => {
+          setFormData({ ...formData, project_id: project.id });
+          setShowCreateProject(false);
+          setOpen(true);
+        }}
+      />
+    </>
   );
 };
