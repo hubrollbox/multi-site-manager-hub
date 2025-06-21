@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -90,30 +91,28 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              {!projectId && (
-                <div className="grid gap-2">
-                  <Label htmlFor="project_id">Projeto *</Label>
-                  <Select 
-                    value={formData.project_id} 
-                    onValueChange={handleProjectChange}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um projeto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="new-project" className="text-blue-600 font-medium">
-                        + Criar Novo Projeto
+              <div className="grid gap-2">
+                <Label htmlFor="project_id">Projeto *</Label>
+                <Select 
+                  value={formData.project_id} 
+                  onValueChange={handleProjectChange}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um projeto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
                       </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+                    ))}
+                    <SelectItem value="new-project" className="text-blue-600 font-medium">
+                      + Criar Novo Projeto
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               
               <div className="grid gap-2">
                 <Label htmlFor="title">Título da Tarefa *</Label>

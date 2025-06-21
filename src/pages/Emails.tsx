@@ -10,12 +10,16 @@ import {
   CheckCircle, 
   XCircle,
   TrendingUp,
-  Plus
+  Plus,
+  Inbox
 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
+import { useState } from "react";
+import { CreateEmailDialog } from "@/components/emails/CreateEmailDialog";
 
 const Emails = () => {
-  const { currentProject } = useProjectContext();
+  const { currentProject, projects } = useProjectContext();
+  const [createEmailOpen, setCreateEmailOpen] = useState(false);
 
   if (!currentProject) {
     return (
@@ -25,75 +29,80 @@ const Emails = () => {
     );
   }
 
-  const emailStats = [
-    {
-      title: "Emails Enviados",
-      value: "1,284",
-      change: "+5%",
-      icon: Send,
-      color: "text-blue-600",
-    },
-    {
-      title: "Taxa de Abertura",
-      value: "68%",
-      change: "+2%",
-      icon: Mail,
-      color: "text-green-600",
-    },
-    {
-      title: "Taxa de Clique",
-      value: "12%",
-      change: "+1%",
-      icon: TrendingUp,
-      color: "text-purple-600",
-    },
-    {
-      title: "Emails Agendados",
-      value: "23",
-      change: "0%",
-      icon: Clock,
-      color: "text-orange-600",
-    },
-  ];
+  // Email data baseado no projeto atual
+  const getProjectEmailStats = (projectId: string) => {
+    const baseStats = {
+      sent: Math.floor(Math.random() * 1000) + 100,
+      openRate: Math.floor(Math.random() * 30) + 50,
+      clickRate: Math.floor(Math.random() * 15) + 5,
+      scheduled: Math.floor(Math.random() * 20) + 5,
+    };
 
-  const recentEmails = [
-    {
-      id: "1",
-      subject: "Bem-vindo ao nosso site!",
-      recipients: 45,
-      status: "sent",
-      openRate: 72,
-      clickRate: 15,
-      sentAt: "2024-01-21 10:30",
-    },
-    {
-      id: "2",
-      subject: "Newsletter semanal",
-      recipients: 234,
-      status: "sent", 
-      openRate: 65,
-      clickRate: 8,
-      sentAt: "2024-01-20 09:00",
-    },
-    {
-      id: "3",
-      subject: "Recuperação de password",
-      recipients: 12,
-      status: "sent",
-      openRate: 89,
-      clickRate: 45,
-      sentAt: "2024-01-20 14:15",
-    },
-    {
-      id: "4",
-      subject: "Promoção especial",
-      recipients: 156,
-      status: "scheduled",
-      openRate: 0,
-      clickRate: 0,
-      sentAt: "2024-01-22 16:00",
-    },
-  ];
+    return [
+      {
+        title: "Emails Enviados",
+        value: baseStats.sent.toString(),
+        change: "+5%",
+        icon: Send,
+        color: "text-blue-600",
+      },
+      {
+        title: "Taxa de Abertura",
+        value: `${baseStats.openRate}%`,
+        change: "+2%",
+        icon: Mail,
+        color: "text-green-600",
+      },
+      {
+        title: "Taxa de Clique",
+        value: `${baseStats.clickRate}%`,
+        change: "+1%",
+        icon: TrendingUp,
+        color: "text-purple-600",
+      },
+      {
+        title: "Emails Agendados",
+        value: baseStats.scheduled.toString(),
+        change: "0%",
+        icon: Clock,
+        color: "text-orange-600",
+      },
+    ];
+  };
+
+  // Caixas de email por projeto
+  const getProjectEmailBoxes = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return [];
+
+    const baseName = project.name.toLowerCase().replace(/\s+/g, '');
+    return [
+      {
+        id: `${projectId}-inbox`,
+        name: "Caixa de Entrada Principal",
+        email: `info@${baseName}.com`,
+        unread: Math.floor(Math.random() * 50) + 5,
+        total: Math.floor(Math.random() * 200) + 100,
+      },
+      {
+        id: `${projectId}-contact`,
+        name: "Contacto",
+        email: `contato@${baseName}.com`,
+        unread: Math.floor(Math.random() * 30) + 2,
+        total: Math.floor(Math.random() * 150) + 80,
+      },
+      {
+        id: `${projectId}-support`,
+        name: "Suporte",
+        email: `suporte@${baseName}.com`,
+        unread: Math.floor(Math.random() * 20) + 1,
+        total: Math.floor(Math.random() * 100) + 50,
+      },
+    ];
+  };
+
+  const emailStats = getProjectEmailStats(currentProject.id);
+  const emailBoxes = getProjectEmailBoxes(currentProject.id);
 
   const automationRules = [
     {
@@ -117,18 +126,7 @@ const Emails = () => {
       status: "active",
       sent: 234,
     },
-    {
-      id: "4",
-      name: "Email de Reativação",
-      trigger: "30 dias sem login",
-      status: "inactive",
-      sent: 0,
-    },
   ];
-
-  const handleCreateEmail = () => {
-    alert("Editor de emails será implementado");
-  };
 
   const handleCreateAutomation = () => {
     alert("Criador de automação de emails será implementado");
@@ -139,18 +137,18 @@ const Emails = () => {
     alert(`Automação "${rule.name}" ${newStatus === 'active' ? 'ativada' : 'desativada'}`);
   };
 
-  const handleViewEmailDetails = (email: any) => {
-    alert(`Detalhes do email: ${email.subject}`);
+  const handleViewEmailBox = (emailBox: any) => {
+    alert(`Abrir caixa de email: ${emailBox.email}`);
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Automação de Emails</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Emails do Projeto</h1>
           <p className="text-gray-600 mt-1">Gerir emails do {currentProject.name}</p>
         </div>
-        <Button onClick={handleCreateEmail} className="flex items-center gap-2">
+        <Button onClick={() => setCreateEmailOpen(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Novo Email
         </Button>
@@ -177,55 +175,41 @@ const Emails = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Emails */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Emails Recentes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentEmails.map((email) => (
-              <div key={email.id} className="p-4 bg-gray-50 rounded-lg space-y-3 cursor-pointer hover:bg-gray-100" 
-                   onClick={() => handleViewEmailDetails(email)}>
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-900">{email.subject}</h4>
-                  <Badge variant={
-                    email.status === 'sent' ? 'default' : 
-                    email.status === 'scheduled' ? 'secondary' : 'destructive'
-                  }>
-                    {email.status === 'sent' ? 'Enviado' : 
-                     email.status === 'scheduled' ? 'Agendado' : 'Falhou'}
-                  </Badge>
+      {/* Email Boxes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Inbox className="h-5 w-5" />
+            Caixas de Email do Projeto
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {emailBoxes.map((emailBox) => (
+            <div 
+              key={emailBox.id} 
+              className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+              onClick={() => handleViewEmailBox(emailBox)}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-900">{emailBox.name}</h4>
+                  <p className="text-sm text-gray-600">{emailBox.email}</p>
                 </div>
-                
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>{email.recipients} destinatários</span>
-                  <span>{email.sentAt}</span>
-                </div>
-
-                {email.status === 'sent' && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Taxa de abertura</span>
-                      <span>{email.openRate}%</span>
-                    </div>
-                    <Progress value={email.openRate} className="h-2" />
-                    
-                    <div className="flex justify-between text-sm">
-                      <span>Taxa de clique</span>
-                      <span>{email.clickRate}%</span>
-                    </div>
-                    <Progress value={email.clickRate} className="h-2" />
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    {emailBox.unread > 0 && (
+                      <Badge variant="destructive">{emailBox.unread} não lidos</Badge>
+                    )}
+                    <span className="text-sm text-gray-500">{emailBox.total} total</span>
                   </div>
-                )}
+                </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         {/* Automation Rules */}
         <Card>
           <CardHeader>
@@ -265,6 +249,11 @@ const Emails = () => {
           </CardContent>
         </Card>
       </div>
+
+      <CreateEmailDialog 
+        open={createEmailOpen}
+        onOpenChange={setCreateEmailOpen}
+      />
     </div>
   );
 };

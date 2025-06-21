@@ -7,38 +7,6 @@ import { CreateProjectUserDialog } from "@/components/CreateProjectUserDialog";
 import { UserStats } from "@/components/users/UserStats";
 import { UserTable } from "@/components/users/UserTable";
 
-// Simulando dados de utilizadores/clientes da base de dados do projeto
-const mockDatabaseUsers = [
-  {
-    id: "1",
-    name: "João Silva",
-    email: "joao.silva@email.com",
-    role: "customer",
-    created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: "2", 
-    name: "Maria Santos",
-    email: "maria.santos@email.com",
-    role: "premium_customer",
-    created_at: "2024-02-10T14:30:00Z"
-  },
-  {
-    id: "3",
-    name: "Pedro Costa",
-    email: "pedro.costa@email.com", 
-    role: "customer",
-    created_at: "2024-01-20T09:15:00Z"
-  },
-  {
-    id: "4",
-    name: "Ana Ferreira", 
-    email: "ana.ferreira@email.com",
-    role: "vip_customer",
-    created_at: "2024-03-05T16:45:00Z"
-  }
-];
-
 const Users = () => {
   const { currentProject } = useProjectContext();
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,7 +22,7 @@ const Users = () => {
   }
 
   // Em um cenário real, estes dados viriam da base de dados do projeto
-  const users = mockDatabaseUsers;
+  const users: any[] = [];
 
   const activeUsers = users.filter(user => user.role !== 'inactive').length;
   const newThisMonth = users.filter(user => {

@@ -1,6 +1,5 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import SiteSelector from "@/components/SiteSelector";
 import { Button } from "@/components/ui/button";
 import { Settings, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +11,6 @@ export const Header = () => {
     <header className="border-b bg-white p-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
-        <SiteSelector />
       </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => navigate('/settings')}>

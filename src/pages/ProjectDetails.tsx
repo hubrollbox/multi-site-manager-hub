@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Upload, FileText, Calendar, Users, Database } from "lucide-react";
+import { Loader2, Upload, FileText, Calendar, Users, Database, Edit } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { CreateTaskDialog } from "@/components/CreateTaskDialog";
 import { EditTaskDialog } from "@/components/EditTaskDialog";
+import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { useUpdateTask, useDeleteTask } from "@/hooks/useTasks";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,6 +22,7 @@ const ProjectDetails = () => {
   const deleteTaskMutation = useDeleteTask();
   const [editingTask, setEditingTask] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editProjectOpen, setEditProjectOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const project = projects.find(p => p.id === projectId);
@@ -116,6 +118,10 @@ const ProjectDetails = () => {
           <p className="text-gray-600 mt-1">{project.description || "Sem descrição"}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setEditProjectOpen(true)} variant="outline" size="sm">
+            <Edit className="h-4 w-4 mr-2" />
+            Editar Projeto
+          </Button>
           <CreateTaskDialog projectId={project.id} />
         </div>
       </div>
@@ -303,6 +309,12 @@ const ProjectDetails = () => {
         task={editingTask}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
+      />
+
+      <EditProjectDialog 
+        project={project}
+        open={editProjectOpen}
+        onOpenChange={setEditProjectOpen}
       />
     </div>
   );
