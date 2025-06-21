@@ -2,18 +2,47 @@
 import { Loader2 } from "lucide-react";
 import { useProjectContext } from "@/contexts/ProjectContext";
 import { useState } from "react";
-import { useProjectUsers, useDeleteProjectUser } from "@/hooks/useProjectUsers";
 import { useToast } from "@/hooks/use-toast";
 import { CreateProjectUserDialog } from "@/components/CreateProjectUserDialog";
 import { UserStats } from "@/components/users/UserStats";
 import { UserTable } from "@/components/users/UserTable";
 
+// Simulando dados de utilizadores/clientes da base de dados do projeto
+const mockDatabaseUsers = [
+  {
+    id: "1",
+    name: "João Silva",
+    email: "joao.silva@email.com",
+    role: "customer",
+    created_at: "2024-01-15T10:00:00Z"
+  },
+  {
+    id: "2", 
+    name: "Maria Santos",
+    email: "maria.santos@email.com",
+    role: "premium_customer",
+    created_at: "2024-02-10T14:30:00Z"
+  },
+  {
+    id: "3",
+    name: "Pedro Costa",
+    email: "pedro.costa@email.com", 
+    role: "customer",
+    created_at: "2024-01-20T09:15:00Z"
+  },
+  {
+    id: "4",
+    name: "Ana Ferreira", 
+    email: "ana.ferreira@email.com",
+    role: "vip_customer",
+    created_at: "2024-03-05T16:45:00Z"
+  }
+];
+
 const Users = () => {
   const { currentProject } = useProjectContext();
   const [searchTerm, setSearchTerm] = useState("");
-  
-  const { data: users = [], isLoading, error } = useProjectUsers(currentProject?.id);
-  const deleteUserMutation = useDeleteProjectUser();
+  const [isLoading] = useState(false);
   const { toast } = useToast();
 
   if (!currentProject) {
@@ -23,6 +52,9 @@ const Users = () => {
       </div>
     );
   }
+
+  // Em um cenário real, estes dados viriam da base de dados do projeto
+  const users = mockDatabaseUsers;
 
   const activeUsers = users.filter(user => user.role !== 'inactive').length;
   const newThisMonth = users.filter(user => {
@@ -41,7 +73,10 @@ const Users = () => {
 
   const handleRemoveUser = async (user: any) => {
     if (confirm(`Tem certeza que deseja remover o utilizador ${user.name}?`)) {
-      await deleteUserMutation.mutateAsync(user.id);
+      toast({
+        title: "Funcionalidade em desenvolvimento",
+        description: `Remoção do utilizador ${user.name} será implementada em breve.`,
+      });
     }
   };
 
@@ -60,20 +95,12 @@ const Users = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-red-500">Erro ao carregar utilizadores</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Utilizadores do Projeto</h1>
-          <p className="text-gray-600 mt-1">Gerir utilizadores do {currentProject.name}</p>
+          <p className="text-gray-600 mt-1">Clientes e utilizadores da base de dados do {currentProject.name}</p>
         </div>
         <CreateProjectUserDialog projectId={currentProject.id} />
       </div>
@@ -92,7 +119,6 @@ const Users = () => {
         onShowFilters={handleShowFilters}
         onEditUser={handleEditUser}
         onRemoveUser={handleRemoveUser}
-        isDeletingUserId={deleteUserMutation.isPending ? undefined : undefined}
         projectName={currentProject.name}
       />
     </div>

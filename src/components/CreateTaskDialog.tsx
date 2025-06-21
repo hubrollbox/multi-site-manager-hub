@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -65,6 +64,14 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
     setOpen(false);
   };
 
+  const handleProjectChange = (value: string) => {
+    if (value === 'new-project') {
+      handleCreateNewProject();
+    } else {
+      setFormData({ ...formData, project_id: value });
+    }
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -88,7 +95,7 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
                   <Label htmlFor="project_id">Projeto *</Label>
                   <Select 
                     value={formData.project_id} 
-                    onValueChange={(value) => setFormData({ ...formData, project_id: value })}
+                    onValueChange={handleProjectChange}
                     required
                   >
                     <SelectTrigger>
@@ -105,16 +112,6 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  {formData.project_id === 'new-project' && (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={handleCreateNewProject}
-                      className="w-full"
-                    >
-                      Criar Novo Projeto
-                    </Button>
-                  )}
                 </div>
               )}
               
@@ -171,7 +168,7 @@ export const CreateTaskDialog = ({ projectId }: CreateTaskDialogProps) => {
               </Button>
               <Button 
                 type="submit" 
-                disabled={createTaskMutation.isPending || !formData.title.trim() || (!formData.project_id || formData.project_id === 'new-project')}
+                disabled={createTaskMutation.isPending || !formData.title.trim() || !formData.project_id}
               >
                 {createTaskMutation.isPending ? "Criando..." : "Criar Tarefa"}
               </Button>
