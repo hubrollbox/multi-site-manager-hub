@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,28 +86,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Rollbox</h1>
-          <p className="text-gray-600 mt-2">Gestão de projetos simplificada</p>
+          <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
+            <span className="text-white text-2xl font-bold">R</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Rollbox</h1>
+          <p className="text-gray-600">Gestão de projetos simplificada</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Acesso à Plataforma</CardTitle>
+        <Card className="shadow-lg border-0">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl">Bem-vindo</CardTitle>
             <CardDescription>
               Entre na sua conta ou crie uma nova para começar
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">Entrar</TabsTrigger>
                 <TabsTrigger value="signup">Registar</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="signin">
+              <TabsContent value="signin" className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
@@ -119,6 +121,7 @@ const Auth = () => {
                       value={signInData.email}
                       onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
                       required
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -126,12 +129,14 @@ const Auth = () => {
                     <Input
                       id="signin-password"
                       type="password"
+                      placeholder="••••••••"
                       value={signInData.password}
                       onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
                       required
+                      className="h-11"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 mt-6" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -147,7 +152,7 @@ const Auth = () => {
                 </form>
               </TabsContent>
               
-              <TabsContent value="signup">
+              <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Nome</Label>
@@ -158,6 +163,7 @@ const Auth = () => {
                       value={signUpData.name}
                       onChange={(e) => setSignUpData({ ...signUpData, name: e.target.value })}
                       required
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -169,6 +175,7 @@ const Auth = () => {
                       value={signUpData.email}
                       onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
                       required
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -181,9 +188,10 @@ const Auth = () => {
                       onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
                       required
                       minLength={6}
+                      className="h-11"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 mt-6" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
